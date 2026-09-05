@@ -1,0 +1,42 @@
+import { describe, expect, it } from "vitest";
+import { TRPCError } from "@trpc/server";
+import { appRouter } from "./routers";
+import type { TrpcContext } from "./_core/context";
+import { ENV } from "./_core/env";
+
+function createContext(overrides: Partial<NonNullable<TrpcContext["user"]>> = {}): TrpcContext {
+  return {
+    user: {
+      id: 42,
+      openId: "reader-open-id",
+      name: "Reader",
+      email: "reader@example.com",
+      loginMethod: "manus",
+      role: "user",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+      ...overrides,
+    },
+    req: {} as TrpcContext["req"],
+    res: {} as TrpcContext["res"],
+  };
+}
+
+describe("curator access", () => {
+  it("rejects authenticated non-admin users", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(caller.curator.list()).rejects.toMatchObject<TRPCError>({ code: "FORBIDDEN" });
+  });
+
+  it("rejects authenticated admins who are not the project owner", async () => {
+    const caller = appRouter.createCaller(createContext({ role: "admin", openId: "another-admin-open-id" }));
+    await expect(caller.curator.list()).rejects.toMatchObject<TRPCError>({ code: "FORBIDDEN" });
+  });
+
+  it("accepts the configured project owner", async () => {
+    expect(ENV.ownerOpenId).toBeTruthy();
+    const caller = appRouter.createCaller(createContext({ role: "admin", openId: ENV.ownerOpenId }));
+    await expect(caller.curator.access()).resolves.toBe(true);
+  });
+});

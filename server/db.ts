@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { CuratorPost, CuratorPostRevision, InsertCuratorPost, InsertCuratorPostRevision, InsertUser, curatorPostRevisions, curatorPosts, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,72 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function listCuratorPosts() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(curatorPosts).orderBy(desc(curatorPosts.createdAt));
+}
+
+export async function listPublishedCuratorPosts() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(curatorPosts).where(eq(curatorPosts.status, "published")).orderBy(desc(curatorPosts.publishedAt));
+}
+
+export async function getCuratorPostById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.id, id)).limit(1);
+  return rows[0];
+}
+
+export async function getCuratorPostBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.slug, slug)).limit(1);
+  return rows[0];
+}
+
+export async function getCuratorPostByScheduleTaskUid(taskUid: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.scheduleCronTaskUid, taskUid)).limit(1);
+  return rows[0];
+}
+
+export async function createCuratorPost(post: InsertCuratorPost): Promise<CuratorPost | undefined> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(curatorPosts).values(post);
+  const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.id, result[0].insertId));
+  return rows[0];
+}
+
+export async function updateCuratorPost(id: number, post: Partial<Omit<InsertCuratorPost, "id" | "authorId">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(curatorPosts).set(post).where(eq(curatorPosts.id, id));
+  const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.id, id));
+  return rows[0];
+}
+
+export async function deleteCuratorPost(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.delete(curatorPosts).where(eq(curatorPosts.id, id));
+  return { success: true } as const;
+}
+
+export async function createCuratorRevision(revision: InsertCuratorPostRevision): Promise<CuratorPostRevision | undefined> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(curatorPostRevisions).values(revision);
+  const rows = await db.select().from(curatorPostRevisions).where(eq(curatorPostRevisions.id, result[0].insertId));
+  return rows[0];
+}
+
+export async function listCuratorRevisions(postId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(curatorPostRevisions).where(eq(curatorPostRevisions.postId, postId)).orderBy(desc(curatorPostRevisions.createdAt));
+}

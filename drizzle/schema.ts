@@ -25,4 +25,42 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const curatorPosts = mysqlTable("curator_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  authorId: int("authorId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  category: varchar("category", { length: 120 }).notNull(),
+  excerpt: text("excerpt").notNull(),
+  story: text("story").notNull(),
+  imageUrl: text("imageUrl"),
+  videoUrl: text("videoUrl"),
+  imageKey: text("imageKey"),
+  videoKey: text("videoKey"),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
+  scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }),
+  scheduledFor: timestamp("scheduledFor"),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CuratorPost = typeof curatorPosts.$inferSelect;
+export type InsertCuratorPost = typeof curatorPosts.$inferInsert;
+
+export const curatorPostRevisions = mysqlTable("curator_post_revisions", {
+  id: int("id").autoincrement().primaryKey(),
+  postId: int("postId").notNull(),
+  authorId: int("authorId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  category: varchar("category", { length: 120 }).notNull(),
+  excerpt: text("excerpt").notNull(),
+  story: text("story").notNull(),
+  imageUrl: text("imageUrl"),
+  videoUrl: text("videoUrl"),
+  status: mysqlEnum("status", ["draft", "published"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CuratorPostRevision = typeof curatorPostRevisions.$inferSelect;
+export type InsertCuratorPostRevision = typeof curatorPostRevisions.$inferInsert;
