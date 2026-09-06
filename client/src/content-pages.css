@@ -90,3 +90,40 @@
 .specimen-record dt, .specimen-record strong { color:#bd5445; font-size:8px; letter-spacing:.12em; text-transform:uppercase; }
 .specimen-record dd { margin:0; color:#c9c0b5; font-size:11px; line-height:1.45; }
 .specimen-record > p { color:#a59c90; font-size:11px; line-height:1.55; }
+
+
+.manifesto-visual { max-width:1240px; margin:0 auto 85px; padding:0 6vw; }
+.manifesto-visual img { display:block; width:100%; max-height:540px; object-fit:cover; filter:saturate(.72) contrast(1.06); border:1px solid rgba(240,233,221,.16); }
+.manifesto-visual figcaption { padding-top:13px; color:#bd5445; font-size:8px; letter-spacing:.16em; }
+.submission-routing { max-width:560px; color:#615b54; font-size:13px; line-height:1.6; }
+.submission-routing strong { color:#a53d2f; font-weight:500; }
+.submission-file input[type=file] { border:1px dashed #a59c90; padding:16px; font:12px "IBM Plex Sans",sans-serif; cursor:pointer; }
+.submission-file span { color:#4f6854; font-size:10px; letter-spacing:.04em; text-transform:none; }
+.form-error { margin:12px 0; color:#a53d2f; font-size:12px; }
+.submission-receipt { display:flex; flex-direction:column; gap:8px; max-width:620px; padding:18px 0 0; }
+.submission-receipt strong { color:#a53d2f; }
+.submission-receipt span { color:#615b54; line-height:1.55; }
+.submission-receipt::after { content:"ROUTED / CURATOR@VEILHOUSE.MONSTER"; margin-top:7px; color:#a59c90; font-size:8px; letter-spacing:.14em; }
+.dream-controls .turn-room { display:inline-flex; align-items:center; gap:7px; width:auto; height:42px; padding:0 14px; border:1px solid rgba(229,223,211,.36); border-radius:0; background:rgba(8,8,7,.16); color:#e5dfd3; font-size:9px; letter-spacing:.13em; text-transform:uppercase; }
+.dream-controls .turn-room:hover, .dream-controls .turn-room[aria-pressed="true"] { background:#a53d2f; border-color:#a53d2f; }
+.dream-watermark { position:absolute; z-index:1; right:9vw; top:47%; color:rgba(189,84,69,0); font:10px "IBM Plex Mono",monospace; letter-spacing:.28em; transform:rotate(-9deg); transition:color 500ms ease, transform 500ms ease; pointer-events:none; }
+.dream-page.is-turned .dream-chamber-overlay { transform:scaleX(-1); background:linear-gradient(270deg, rgba(8,8,7,.92), rgba(8,8,7,.22) 70%), linear-gradient(0deg, rgba(8,8,7,.9), transparent 65%); }
+.dream-page.is-turned .dream-chamber-copy { margin-left:auto; margin-right:11.5vw; text-align:right; }
+.dream-page.is-turned .dream-chamber-copy > p:not(.eyebrow):not(.dream-counter) { margin-left:auto; }
+.dream-page.is-turned .dream-controls { justify-content:flex-end; }
+.dream-page.is-turned .dream-watermark { color:rgba(189,84,69,.5); transform:rotate(8deg) translate(-20px, 15px); }
+.dream-receive textarea { transition:border-color 180ms ease, box-shadow 180ms ease; }
+.dream-receive textarea:focus { border-color:#bd5445; box-shadow:0 0 0 1px rgba(189,84,69,.25); outline:0; }
+.dream-warning { margin:0 0 13px; color:#bd5445 !important; font:10px "IBM Plex Mono",monospace; letter-spacing:.06em; animation:warning-fade 2200ms ease both; }
+@keyframes warning-fade { 0% { opacity:0; transform:translateX(-4px); } 12%,80% { opacity:1; transform:translateX(0); } 100% { opacity:0; } }
+.dream-receipt { display:flex; flex-direction:column; gap:9px; margin-top:22px; padding:19px; border:1px solid rgba(189,84,69,.5); background:rgba(189,84,69,.06); color:#c9c0b5; }
+.dream-receipt strong { color:#d16a5a; font:400 25px/.9 "Cormorant Garamond",serif; }
+.dream-receipt span { font-size:12px; line-height:1.55; }
+.dream-receipt b { color:#bd5445; font:9px "IBM Plex Mono",monospace; letter-spacing:.14em; }
+.residual-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(25,23,20,.2); }
+.residual-grid article { min-height:230px; padding:25px; background:#e7dfd2; }
+.residual-grid article span { color:#a53d2f; font-size:9px; letter-spacing:.13em; }
+.residual-grid article p { margin:20px 0 16px; color:#615b54; font:23px/1.15 "Cormorant Garamond",serif; }
+.residual-grid article small { color:#8d8478; font-size:10px; letter-spacing:.05em; }
+.residual-grid .visitor-imprint { background:#ddd4c7; }
+@media (max-width:800px) { .manifesto-visual { margin-bottom:55px; padding:0 7vw; }.manifesto-visual img { min-height:300px; }.dream-page.is-turned .dream-chamber-copy { margin-left:24px; margin-right:24px; text-align:left; }.dream-page.is-turned .dream-chamber-copy > p:not(.eyebrow):not(.dream-counter) { margin-left:0; }.dream-page.is-turned .dream-controls { justify-content:flex-start; }.dream-watermark { right:12vw; }.residual-grid { grid-template-columns:1fr; } }

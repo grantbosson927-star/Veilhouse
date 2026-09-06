@@ -5,8 +5,9 @@ import { systemRouter } from "./_core/systemRouter";
 import { isProjectOwner, ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
 import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
-import { addSubscriber, createCuratorPost, createCuratorRevision, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen } from "./db";
 import { storagePut } from "./storage";
+import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 
 const mediaRef = z.string().refine((value) => value === "" || value.startsWith("/manus-storage/") || /^https?:\/\//.test(value), "Please enter a valid media URL");
@@ -46,6 +47,7 @@ export const appRouter = router({
       heroMedia: z.enum(["image", "video"]),
     })).mutation(({ input }) => upsertCuratorSpecimen({ ...input, story: input.story || null, imageUrl: input.imageUrl || null, videoUrl: input.videoUrl || null, imageKey: input.imageKey || null, videoKey: input.videoKey || null })),
     subscribers: ownerProcedure.query(() => listSubscribers()),
+    submissions: ownerProcedure.query(() => listCuratorSubmissions()),
     published: publicProcedure.query(() => listPublishedCuratorPosts()),
     bySlug: publicProcedure.input(z.object({ slug: z.string().min(1) })).query(async ({ input }) => { const post = await getCuratorPostBySlug(input.slug); return post?.status === "published" ? post : null; }),
     list: ownerProcedure.query(() => listCuratorPosts()),
@@ -117,6 +119,31 @@ export const appRouter = router({
   dreams: router({
     submit: publicProcedure.input(z.object({ title: z.string().min(1).max(255), dreamText: z.string().min(1).max(5000) })).mutation(({ input }) => createDreamSubmission({ title: input.title.trim(), dreamText: input.dreamText.trim() })),
     recent: publicProcedure.query(() => listDreamSubmissions()),
+  }),
+  submissions: router({
+    create: publicProcedure.input(z.object({
+      name: z.string().min(1).max(255),
+      email: z.string().email(),
+      category: z.string().min(1).max(120),
+      title: z.string().min(1).max(255),
+      description: z.string().min(1).max(12000),
+      imageData: z.string().optional(),
+      imageName: z.string().max(160).optional(),
+      imageContentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]).optional(),
+    })).mutation(async ({ input }) => {
+      let imageUrl: string | null = null;
+      let imageKey: string | null = null;
+      if (input.imageData) {
+        const bytes = Buffer.from(input.imageData, "base64");
+        if (bytes.byteLength > 12 * 1024 * 1024) throw new Error("Specimen images must be 12MB or smaller.");
+        const asset = await storagePut(`submissions/${Date.now()}-${(input.imageName || "specimen.jpg").replace(/[^a-zA-Z0-9._-]/g, "-")}`, bytes, input.imageContentType || "image/jpeg");
+        imageUrl = asset.url;
+        imageKey = asset.key;
+      }
+      const submission = await createCuratorSubmission({ name: input.name.trim(), email: input.email.trim().toLowerCase(), category: input.category, title: input.title.trim(), description: input.description.trim(), imageUrl, imageKey, recipient: "curator@veilhouse.monster" });
+      try { await notifyOwner({ title: `New Veilhouse specimen: ${submission?.title || input.title}`, content: `Route this submission to curator@veilhouse.monster.\n\nFrom: ${input.name} <${input.email}>\nCategory: ${input.category}\nTitle: ${input.title}\n\n${input.description}${imageUrl ? `\n\nImage: ${imageUrl}` : "\n\nNo image attached."}` }); } catch (error) { console.warn("[Submissions] Stored submission but notification delivery was unavailable:", error); }
+      return { accepted: true, recipient: "curator@veilhouse.monster", id: submission?.id, imageUrl } as const;
+    }),
   }),
 });
 

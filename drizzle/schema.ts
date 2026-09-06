@@ -90,6 +90,22 @@ export const curatorSpecimens = mysqlTable("curator_specimens", {
 export type CuratorSpecimen = typeof curatorSpecimens.$inferSelect;
 export type InsertCuratorSpecimen = typeof curatorSpecimens.$inferInsert;
 
+export const curatorSubmissions = mysqlTable("curator_submissions", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  category: varchar("category", { length: 120 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("imageUrl"),
+  imageKey: text("imageKey"),
+  recipient: varchar("recipient", { length: 320 }).notNull().default("curator@veilhouse.monster"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CuratorSubmission = typeof curatorSubmissions.$inferSelect;
+export type InsertCuratorSubmission = typeof curatorSubmissions.$inferInsert;
+
 export const subscribers = mysqlTable("subscribers", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),

@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CuratorPost, CuratorPostRevision, DreamSubmission, InsertCuratorPost, InsertCuratorPostRevision, InsertCuratorSpecimen, InsertDreamSubmission, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, curatorSpecimens, dreamSubmissions, subscribers, users } from "../drizzle/schema";
+import { CuratorPost, CuratorPostRevision, DreamSubmission, InsertCuratorPost, InsertCuratorPostRevision, InsertCuratorSpecimen, InsertCuratorSubmission, InsertDreamSubmission, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, curatorSpecimens, curatorSubmissions, dreamSubmissions, subscribers, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -203,6 +203,20 @@ export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
     },
   });
   return getCuratorSpecimen(specimen.slug);
+}
+
+export async function createCuratorSubmission(submission: InsertCuratorSubmission) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(curatorSubmissions).values(submission);
+  const rows = await db.select().from(curatorSubmissions).where(eq(curatorSubmissions.id, result[0].insertId)).limit(1);
+  return rows[0];
+}
+
+export async function listCuratorSubmissions() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(curatorSubmissions).orderBy(desc(curatorSubmissions.createdAt));
 }
 
 export async function addSubscriber(email: string) {
