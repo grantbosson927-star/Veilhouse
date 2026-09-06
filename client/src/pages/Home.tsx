@@ -1,5 +1,5 @@
 /* Veilhouse reference replication: preserve the supplied archive’s dark editorial rhythm, seven specimens, and oxblood field-note language. */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Menu, Search, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { religiousHorrorRecords } from "./religiousHorror";
@@ -88,7 +88,12 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const publishedPostsQuery = trpc.curator.published.useQuery();
+  const specimenOverridesQuery = trpc.curator.specimens.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
+  const [heroIndex, setHeroIndex] = useState(0);
+  const heroSlides = useMemo(() => entries.map((entry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, heroImage: saved?.imageUrl || entry.image, heroVideo: saved?.videoUrl || "", heroMedia: saved?.heroMedia || "image", heroStory: saved?.story || entry.note }; }), [specimenOverridesQuery.data]);
+  useEffect(() => { if (heroSlides.length < 2) return; const timer = window.setInterval(() => setHeroIndex((current) => (current + 1) % heroSlides.length), 7000); return () => window.clearInterval(timer); }, [heroSlides.length]);
+  const hero = heroSlides[heroIndex] || heroSlides[0];
 
   const activeEntries: CuratedEntry[] = activeTheme === "All specimens" ? entries : allCategoryEntries[activeTheme.toLowerCase().replaceAll(" ", "-")] || [];
   const filteredEntries = useMemo(() => activeEntries.filter((entry) => {
@@ -119,16 +124,18 @@ export default function Home() {
       </header>
 
       <main id="top">
-        <section className="hero" style={{ backgroundImage: `url(${images.hero})` }}>
+        <section className="hero" key={hero.slug} style={{ backgroundImage: hero.heroMedia === "image" ? `url(${hero.heroImage})` : undefined }}>
+          {hero.heroMedia === "video" && hero.heroVideo ? <video className="hero-video" src={hero.heroVideo} autoPlay muted loop playsInline aria-label={`${hero.title} hero video`} /> : null}
           <div className="hero-overlay" />
           <div className="hero-meta"><span>Est. 2024</span><span>Field notes from the other side</span></div>
           <div className="hero-copy">
-            <p className="eyebrow">A living archive of dark surrealism</p>
-            <h1>Something<br /><em>is waiting</em><br />in the walls.</h1>
-            <p className="hero-description">VEILHOUSE documents the beautiful, the grotesque, and the impossible — where sacred forms buckle under the weight of the dream.</p>
-            <a className="round-cta" href="#archive" aria-label="Enter the archive"><ArrowDownRight size={23} /></a>
+            <p className="eyebrow">{hero.category} / {hero.number}</p>
+            <h1>{hero.title}</h1>
+            <p className="hero-description">{hero.heroStory}</p>
+            <a className="round-cta" href={`/specimen/${hero.slug}`} aria-label={`Open ${hero.title}`}><ArrowUpRight size={23} /></a>
           </div>
-          <div className="hero-index">VH / 03 <span>scroll to descend</span></div>
+          <div className="hero-index">VH / {hero.number} <span>{hero.heroMedia === "video" ? "video evidence" : "archival image"}</span></div>
+          <div className="hero-carousel" aria-label="Specimen hero carousel">{heroSlides.map((slide, index) => <button type="button" key={slide.slug} aria-label={`Show ${slide.title}`} className={index === heroIndex ? "active" : ""} onClick={() => setHeroIndex(index)}><span>{slide.number}</span></button>)}</div>
         </section>
 
 

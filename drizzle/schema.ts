@@ -73,6 +73,22 @@ export const curatorSettings = mysqlTable("curator_settings", {
 
 export type CuratorSettings = typeof curatorSettings.$inferSelect;
 
+export const curatorSpecimens = mysqlTable("curator_specimens", {
+  slug: varchar("slug", { length: 255 }).primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  category: varchar("category", { length: 120 }).notNull(),
+  story: text("story"),
+  imageUrl: text("imageUrl"),
+  videoUrl: text("videoUrl"),
+  imageKey: text("imageKey"),
+  videoKey: text("videoKey"),
+  heroMedia: mysqlEnum("heroMedia", ["image", "video"]).default("image").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CuratorSpecimen = typeof curatorSpecimens.$inferSelect;
+export type InsertCuratorSpecimen = typeof curatorSpecimens.$inferInsert;
+
 export const subscribers = mysqlTable("subscribers", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),

@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CuratorPost, CuratorPostRevision, DreamSubmission, InsertCuratorPost, InsertCuratorPostRevision, InsertDreamSubmission, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, dreamSubmissions, subscribers, users } from "../drizzle/schema";
+import { CuratorPost, CuratorPostRevision, DreamSubmission, InsertCuratorPost, InsertCuratorPostRevision, InsertCuratorSpecimen, InsertDreamSubmission, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, curatorSpecimens, dreamSubmissions, subscribers, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -171,6 +171,37 @@ export async function setCuratorEmail(email: string) {
   if (!db) throw new Error("Database is not available");
   await db.insert(curatorSettings).values({ id: 1, email: email.trim().toLowerCase() }).onDuplicateKeyUpdate({ set: { email: email.trim().toLowerCase() } });
   return getCuratorEmail();
+}
+
+export async function listCuratorSpecimens() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(curatorSpecimens);
+}
+
+export async function getCuratorSpecimen(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(curatorSpecimens).where(eq(curatorSpecimens.slug, slug)).limit(1);
+  return rows[0];
+}
+
+export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(curatorSpecimens).values(specimen).onDuplicateKeyUpdate({
+    set: {
+      title: specimen.title,
+      category: specimen.category,
+      story: specimen.story ?? null,
+      imageUrl: specimen.imageUrl ?? null,
+      videoUrl: specimen.videoUrl ?? null,
+      imageKey: specimen.imageKey ?? null,
+      videoKey: specimen.videoKey ?? null,
+      heroMedia: specimen.heroMedia,
+    },
+  });
+  return getCuratorSpecimen(specimen.slug);
 }
 
 export async function addSubscriber(email: string) {

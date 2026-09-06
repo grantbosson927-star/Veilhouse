@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { isProjectOwner, ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
 import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
-import { addSubscriber, createCuratorPost, createCuratorRevision, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 
@@ -31,6 +31,19 @@ export const appRouter = router({
     lock: protectedProcedure.mutation(({ ctx }) => { revokeCuratorAccess(ctx.req, ctx.res); return { success: true } as const; }),
     settings: ownerProcedure.query(() => getCuratorEmail()),
     updateSettings: ownerProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => setCuratorEmail(input.email)),
+    specimens: publicProcedure.query(() => listCuratorSpecimens()),
+    specimenList: ownerProcedure.query(() => listCuratorSpecimens()),
+    saveSpecimen: ownerProcedure.input(z.object({
+      slug: z.string().min(1).max(255),
+      title: z.string().min(1).max(255),
+      category: z.string().min(1).max(120),
+      story: z.string().optional(),
+      imageUrl: mediaRef.optional(),
+      videoUrl: mediaRef.optional(),
+      imageKey: z.string().optional().or(z.literal("")),
+      videoKey: z.string().optional().or(z.literal("")),
+      heroMedia: z.enum(["image", "video"]),
+    })).mutation(({ input }) => upsertCuratorSpecimen({ ...input, story: input.story || null, imageUrl: input.imageUrl || null, videoUrl: input.videoUrl || null, imageKey: input.imageKey || null, videoKey: input.videoKey || null })),
     subscribers: ownerProcedure.query(() => listSubscribers()),
     published: publicProcedure.query(() => listPublishedCuratorPosts()),
     bySlug: publicProcedure.input(z.object({ slug: z.string().min(1) })).query(async ({ input }) => { const post = await getCuratorPostBySlug(input.slug); return post?.status === "published" ? post : null; }),
