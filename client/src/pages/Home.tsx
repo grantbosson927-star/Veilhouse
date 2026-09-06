@@ -16,7 +16,7 @@ const images = {
 };
 
 const entries = [
-  { slug: "the-cathedral-has-a-pulse", title: "The Cathedral Has A Pulse", category: "Religious horror", number: "01", image: images.faith, note: "A study in corrupted devotion." },
+  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "RH-001", image: "/manus-storage/RH-001_d34455ed.jpg", note: "The cathedral roots in the marrow." },
   { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "02", image: images.machine, note: "When the signal starts watching back." },
   { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "03", image: images.liminal, note: "A corridor with no outside." },
   { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "04", image: images.body, note: "The body as a building site." },
@@ -101,14 +101,9 @@ export default function Home() {
           <div className="hero-index">VH / 03 <span>scroll to descend</span></div>
         </section>
 
-        <section className="manifesto section-grid" id="manifesto">
-          <div className="section-kicker"><span>00</span><span>About the house</span></div><img className="section-mark" src={images.mark} alt="" />
-          <div className="manifesto-copy"><p className="eyebrow oxblood">The archive is open</p><h2>For images that<br /><em>refuse to stay still.</em></h2><p>We collect dark surrealism in all its unstable forms: corrupted saints, flesh-made architecture, obsolete machines, and the familiar places that become wrong when you look twice.</p><a className="text-link" href="#archive">Read the manifesto <ArrowUpRight size={16} /></a></div>
-          <div className="manifesto-stamp"><span>NO SAFE<br />PASSAGE</span><small>VOL. III · 2026</small></div>
-        </section>
 
         <section className="archive" id="archive">
-          <div className="archive-heading section-grid"><div className="section-kicker"><span>01</span><span>Curated specimens</span></div><div><p className="eyebrow oxblood">Recent disturbances</p><h2>Enter the<br /><em>archive.</em></h2></div><p className="archive-intro">Seven doors. No map. Each collection is a different way of losing the thread.</p><div className="archive-mark"><img src={images.mark} alt="" /><span>CATALOGUE<br />VH / 03</span></div></div>
+          <div className="archive-heading section-grid"><div className="section-kicker"><span>001</span><span>Curated specimens</span></div><div><p className="eyebrow oxblood">Recent disturbances</p><h2>Enter the<br /><em>archive.</em></h2></div><p className="archive-intro">Seven doors. No map. Each collection is a different way of losing the thread.</p><div className="archive-mark"><img src={images.mark} alt="" /><span>CATALOGUE<br />VH / 03</span></div></div>
           <div className="filters-wrap"><span className="accession-label">ACCESSION / 03</span><div className="filters" role="tablist" aria-label="Archive filters">{themes.map((theme) => <button key={theme} className={activeTheme === theme ? "filter active" : "filter"} onClick={() => setActiveTheme(theme)}>{theme}</button>)}</div><label className="search-box"><Search size={16} /><input aria-label="Search archive" placeholder="Search the archive" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
           <div className="archive-grid">{filteredEntries.map((entry) => <a className="archive-card" href={`/specimen/${entry.slug}`} key={entry.number}><div className="card-image"><img src={entry.image} alt={entry.title} /><span className="card-number">{entry.number}</span><span className="card-arrow"><ArrowUpRight size={18} /></span></div><div className="card-body"><p>{entry.category}</p><h3>{entry.title}</h3><span>{entry.note}</span></div></a>)}</div>
           {filteredEntries.length === 0 && <div className="empty-state">No specimen matches this disturbance.</div>}
@@ -133,6 +128,13 @@ export default function Home() {
         {publishedPostsQuery.data?.length ? <section className="public-ledger" id="public-ledger"><div className="section-grid"><div className="section-kicker"><span>04</span><span>Newly filed matter</span></div><div><p className="eyebrow oxblood">From the curator's desk</p><h2>Recent entries<br /><em>from inside.</em></h2></div><p className="archive-intro">Newly published records from the private ledger, opened to the public only when the curator decides the house can bear witness.</p></div><div className="public-ledger-grid">{publishedPostsQuery.data.map((post) => <a className="public-ledger-card" href={`/specimen/${post.slug}`} key={post.id}>{post.imageUrl && <img src={post.imageUrl} alt="" />}<div><span>{post.category}</span><h3>{post.title}</h3><p>{post.excerpt}</p><small>Read the full record <ArrowUpRight size={14} /></small></div></a>)}</div></section> : null}
 
         <section className="signal" id="signal"><div className="signal-copy"><p className="eyebrow oxblood">A note from the other side</p><h2>Stay close<br /><em>to the signal.</em></h2><p>Receive one dispatch every other Thursday.</p><form className="signup-form" onSubmit={(event) => { event.preventDefault(); if (email.trim()) subscribe.mutate({ email }); }}><label htmlFor="email">Receive one dispatch every other Thursday.</label><div><input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="your@email.com" required /><button type="submit" aria-label="Subscribe" disabled={subscribe.isPending}><ArrowUpRight size={16} /></button></div></form>{subscribed && <p className="form-confirmation">The signal has your address.</p>}{subscribe.error && <p className="form-confirmation">The signal could not record that address.</p>}<div className="house-dream"><p className="eyebrow">The house dreams</p><p className="dream-line">A room that changes when you name it.</p><a className="button-outline" href="/dreams">Enter Dream 00012 <ArrowUpRight size={16} /></a></div></div><div className="calendar-panel"><p className="eyebrow oxblood">The house, in rhythm</p><h3>One disturbance<br /><em>every day.</em></h3><div>{calendar.map(([day, title]) => <span key={day}><b>{day}</b>{title}</span>)}</div></div></section>
+
+        <section className="manifesto section-grid" id="manifesto">
+          <div className="section-kicker"><span>00</span><span>About the house</span></div><img className="section-mark" src={images.mark} alt="" />
+          <div className="manifesto-copy"><p className="eyebrow oxblood">The archive is open</p><h2>For images that<br /><em>refuse to stay still.</em></h2><p>We collect dark surrealism in all its unstable forms: corrupted saints, flesh-made architecture, obsolete machines, and the familiar places that become wrong when you look twice.</p><a className="text-link" href="#archive">Read the manifesto <ArrowUpRight size={16} /></a></div>
+          <div className="manifesto-stamp"><span>NO SAFE<br />PASSAGE</span><small>VOL. III · 2026</small></div>
+        </section>
+
       </main>
 
       <footer className="footer"><div><a className="wordmark" href="#top"><img className="wordmark-mark" src={images.mark} alt="" /><span>VEIL</span><i>HOUSE</i></a><p>Dark surrealism / collected carefully.</p></div><div className="footer-links"><a href="#archive">Archive</a><a href="#manifesto">About</a><a href="mailto:hello@veilhouse.archive">Contact</a></div><span className="copyright">© 2026 VEILHOUSE</span></footer>

@@ -4,13 +4,28 @@ import { categories } from "./Archive";
 import { useLocation, useRoute } from "wouter";
 import { religiousHorrorRecords } from "./religiousHorror";
 
-type Specimen = { name: string; label: string; id?: string; medium?: string; location?: string; accessionDate?: string; description?: string; curatorNote?: string; prompt?: string };
+const religiousHorrorImages = [
+  "/manus-storage/RH-001_d34455ed.jpg",
+  "/manus-storage/RH-002_560becb2.jpg",
+  "/manus-storage/RH-003_7761ce95.jpg",
+  "/manus-storage/RH-004_c2f84f3e.jpg",
+  "/manus-storage/RH-005_0198104b.jpg",
+  "/manus-storage/RH-006_6dc149f6.jpg",
+  "/manus-storage/RH-007_c0dae31d.jpg",
+  "/manus-storage/RH-008_7af49b5c.jpg",
+  "/manus-storage/RH-009_e9a9461d.jpg",
+  "/manus-storage/RH-010_f9da670f.jpg",
+  "/manus-storage/RH-011_404bf3b0.jpg",
+  "/manus-storage/RH-012_e36ddc67.jpg",
+];
+
+type Specimen = { name: string; label: string; image?: string; id?: string; medium?: string; location?: string; accessionDate?: string; description?: string; curatorNote?: string; prompt?: string };
 type CategoryContent = { introduction: string; specimens: Specimen[] };
 
 const categoryContent: Record<string, CategoryContent> = {
   "religious-horror": {
     introduction: "When devotion corrupts the flesh, when stone learns to bleed, when prayer leaves scars. This vault contains specimens of faith that has turned inward—architecture that digests its congregation, saints whose bones have learned to rearrange themselves, and icons that weep something far darker than tears. Here, the sacred does not heal. It transforms. It consumes. It watches back. These specimens document the exact moment when belief becomes a living, parasitic entity—and that entity is hungry. Each record is a tear in the fabric of devotion, a threshold where the veil between worship and being worshipped has grown thin enough to rip. Do not look for salvation here. The cathedral has a pulse, and it is learning your rhythm.",
-    specimens: religiousHorrorRecords.map((record) => ({ name: record.title, label: record.description, ...record })),
+    specimens: religiousHorrorRecords.map((record, index) => ({ name: record.title, label: record.description, image: religiousHorrorImages[index], ...record })),
   },
   "technology-nightmares": {
     introduction: "Technology becomes frightening when it stops behaving like a tool and begins behaving like a witness. This door catalogs interfaces that anticipate the hand, cameras that retain the shape of a face after the face is gone, and machines that quietly improve their understanding of fear. The signal is never simply broken. It is learning. Each specimen asks what happens when a system designed to observe becomes capable of wanting, and whether the person at the screen can still tell the difference between a malfunction and a reply.",
@@ -100,5 +115,5 @@ export default function CategoryArchive() {
   const content = categoryContent[category[0]] || categoryContent["religious-horror"];
   const [, navigate] = useLocation();
 
-  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}><div className="category-intro"><p>{content.introduction}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div><div className="specimen-grid">{content.specimens.map((specimen, i) => <article className="specimen-card hover-enlarge" key={specimen.id || specimen.name}><img src={images[(i + index) % images.length]} alt="" /><div><span>{specimen.id || `SPECIMEN ${String(i + 1).padStart(2, "0")} / ${category[1]}`}</span><h2>{specimen.name}</h2><p>{specimen.id ? specimen.description : specimen.label}</p>{specimen.id && <details className="specimen-record"><summary>Open archive record</summary><dl><div><dt>MEDIUM</dt><dd>{specimen.medium}</dd></div><div><dt>LOCATION</dt><dd>{specimen.location}</dd></div><div><dt>ACCESSION DATE</dt><dd>{specimen.accessionDate}</dd></div></dl><p><strong>CURATOR'S NOTE</strong><br />{specimen.curatorNote}</p><p><strong>AI IMAGE PROMPT</strong><br />{specimen.prompt}</p></details>}<a href={`/specimen/${specimen.name.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a></div></article>)}</div><div className="category-nav"><button type="button" onClick={() => navigate(`/archive/${categories[(index + categories.length - 1) % categories.length][0]}`)}><ArrowLeft size={15} /> Previous door</button><a href="/archive">All doors</a><button type="button" onClick={() => navigate(`/archive/${categories[(index + 1) % categories.length][0]}`)}>Next door <ArrowRight size={15} /></button></div></PageShell>;
+  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}><div className="category-intro"><p>{content.introduction}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div><div className="specimen-grid">{content.specimens.map((specimen, i) => <article className="specimen-card hover-enlarge" key={specimen.id || specimen.name}><img src={specimen.image || images[(i + index) % images.length]} alt={specimen.name} /><div><span>{specimen.id || `SPECIMEN ${String(i + 1).padStart(2, "0")} / ${category[1]}`}</span><h2>{specimen.name}</h2><p>{specimen.id ? specimen.description : specimen.label}</p>{specimen.id && <details className="specimen-record"><summary>Open archive record</summary><dl><div><dt>MEDIUM</dt><dd>{specimen.medium}</dd></div><div><dt>LOCATION</dt><dd>{specimen.location}</dd></div><div><dt>ACCESSION DATE</dt><dd>{specimen.accessionDate}</dd></div></dl><p><strong>CURATOR'S NOTE</strong><br />{specimen.curatorNote}</p><p><strong>AI IMAGE PROMPT</strong><br />{specimen.prompt}</p></details>}<a href={`/specimen/${specimen.name.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a></div></article>)}</div><div className="category-nav"><button type="button" onClick={() => navigate(`/archive/${categories[(index + categories.length - 1) % categories.length][0]}`)}><ArrowLeft size={15} /> Previous door</button><a href="/archive">All doors</a><button type="button" onClick={() => navigate(`/archive/${categories[(index + 1) % categories.length][0]}`)}>Next door <ArrowRight size={15} /></button></div></PageShell>;
 }
