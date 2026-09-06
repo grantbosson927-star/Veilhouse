@@ -1,0 +1,1 @@
+ALTER TABLE `curator_specimens` ADD `excerpt` text;
