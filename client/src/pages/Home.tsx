@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Menu, Search, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { religiousHorrorRecords } from "./religiousHorror";
 
 const images = {
   hero: "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
@@ -16,14 +17,28 @@ const images = {
 };
 
 const entries = [
-  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "RH-001", image: "/manus-storage/RH-001_d34455ed.jpg", note: "The cathedral roots in the marrow." },
-  { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "02", image: images.machine, note: "When the signal starts watching back." },
-  { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "03", image: images.liminal, note: "A corridor with no outside." },
-  { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "04", image: images.body, note: "The body as a building site." },
-  { slug: "the-moon-in-the-nursery", title: "The Moon In The Nursery", category: "Weirdcore", number: "05", image: images.weirdcore, note: "A childhood memory with teeth." },
-  { slug: "gargoyles-at-dusk", title: "Gargoyles At Dusk", category: "Grotesque architecture", number: "06", image: images.gargoyle, note: "The city seen from above." },
-  { slug: "the-room-that-gathered", title: "The Room That Gathered", category: "Cult horror", number: "07", image: images.ritual, note: "No ceremony without a witness." },
+  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/manus-storage/RH-001_d34455ed.jpg", note: "The cathedral roots in the marrow." },
+  { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "002", image: images.machine, note: "When the signal starts watching back." },
+  { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "003", image: images.liminal, note: "A corridor with no outside." },
+  { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "004", image: images.body, note: "The body as a building site." },
+  { slug: "the-moon-in-the-nursery", title: "The Moon In The Nursery", category: "Weirdcore", number: "005", image: images.weirdcore, note: "A childhood memory with teeth." },
+  { slug: "gargoyles-at-dusk", title: "Gargoyles At Dusk", category: "Grotesque architecture", number: "006", image: images.gargoyle, note: "The city seen from above." },
+  { slug: "the-room-that-gathered", title: "The Room That Gathered", category: "Cult horror", number: "007", image: images.ritual, note: "No ceremony without a witness." },
 ];
+
+const religiousHorrorImages = [
+  "RH-001_d34455ed.jpg", "RH-002_560becb2.jpg", "RH-003_7761ce95.jpg", "RH-004_c2f84f3e.jpg",
+  "RH-005_0198104b.jpg", "RH-006_6dc149f6.jpg", "RH-007_c0dae31d.jpg", "RH-008_7af49b5c.jpg",
+  "RH-009_e9a9461d.jpg", "RH-010_f9da670f.jpg", "RH-011_404bf3b0.jpg", "RH-012_e36ddc67.jpg",
+];
+const religiousEntries = religiousHorrorRecords.map((record, index) => ({
+  slug: record.title.toLowerCase().replaceAll(" ", "-"),
+  title: record.title,
+  category: "Religious horror",
+  number: record.id,
+  image: `/manus-storage/${religiousHorrorImages[index]}`,
+  note: record.description.split(".")[0] + ".",
+}));
 
 const themes = ["All specimens", "Religious horror", "Body horror", "Technology nightmares", "Liminal spaces", "Weirdcore", "Grotesque architecture", "Cult horror"];
 
@@ -61,7 +76,7 @@ export default function Home() {
   const publishedPostsQuery = trpc.curator.published.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
 
-  const filteredEntries = useMemo(() => entries.filter((entry) => {
+  const filteredEntries = useMemo(() => (activeTheme === "Religious horror" ? religiousEntries : entries).filter((entry) => {
     const matchesTheme = activeTheme === "All specimens" || entry.category === activeTheme;
     const matchesQuery = `${entry.title} ${entry.category}`.toLowerCase().includes(query.toLowerCase());
     return matchesTheme && matchesQuery;
@@ -103,7 +118,7 @@ export default function Home() {
 
 
         <section className="archive" id="archive">
-          <div className="archive-heading section-grid"><div className="section-kicker"><span>001</span><span>Curated specimens</span></div><div><p className="eyebrow oxblood">Recent disturbances</p><h2>Enter the<br /><em>archive.</em></h2></div><p className="archive-intro">Seven doors. No map. Each collection is a different way of losing the thread.</p><div className="archive-mark"><img src={images.mark} alt="" /><span>CATALOGUE<br />VH / 03</span></div></div>
+          <div className="archive-heading section-grid"><div className="section-kicker"><span>000</span><span>Curated specimens</span></div><div><p className="eyebrow oxblood">Recent disturbances</p><h2>Enter the<br /><em>archive.</em></h2></div><p className="archive-intro">Seven doors. No map. Each collection is a different way of losing the thread.</p><div className="archive-mark"><img src={images.mark} alt="" /><span>CATALOGUE<br />VH / 03</span></div></div>
           <div className="filters-wrap"><span className="accession-label">ACCESSION / 03</span><div className="filters" role="tablist" aria-label="Archive filters">{themes.map((theme) => <button key={theme} className={activeTheme === theme ? "filter active" : "filter"} onClick={() => setActiveTheme(theme)}>{theme}</button>)}</div><label className="search-box"><Search size={16} /><input aria-label="Search archive" placeholder="Search the archive" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
           <div className="archive-grid">{filteredEntries.map((entry) => <a className="archive-card" href={`/specimen/${entry.slug}`} key={entry.number}><div className="card-image"><img src={entry.image} alt={entry.title} /><span className="card-number">{entry.number}</span><span className="card-arrow"><ArrowUpRight size={18} /></span></div><div className="card-body"><p>{entry.category}</p><h3>{entry.title}</h3><span>{entry.note}</span></div></a>)}</div>
           {filteredEntries.length === 0 && <div className="empty-state">No specimen matches this disturbance.</div>}

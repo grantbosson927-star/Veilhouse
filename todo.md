@@ -25,15 +25,18 @@
 - [x] Mapped each RH record to its own dedicated image without cross-category rotation
 - [x] Made RH-001 the homepage lead specimen for Religious Horror
 - [x] Moved 00 About the House below the archive content
-- [x] Promoted 01 Curated Specimens to 001
+- [x] Renumbered Curated Specimens to 000
+- [x] Numbered the top specimen cards 001, 002, 003, and onward
+- [x] Made the Religious Horror homepage filter show all twelve RH cards with compact descriptions and images
+- [x] Kept full RH metadata and prompts inside the dedicated archive category route
 - [x] Preserved the seven-category archive cards so each category can show its top specimen
 
 ## Verification
 - [x] TypeScript check
 - [x] Vitest regression suite from prior update
 - [x] Production build
-- [x] Browser verification of RH-001 through RH-012 image paths and homepage order
-- [x] Checkpoint saved after the visual/category update
+- [x] Browser verification of 000 heading, 001–007 default cards, and all RH-001–RH-012 filtered cards
+- [x] Checkpoint saved after the numbering and curated-view update
 
 ## Deferred by user request
 - [x] Additional non-Religious-Horror specimen generation deferred until category content is supplied
