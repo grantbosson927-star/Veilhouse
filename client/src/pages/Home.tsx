@@ -4,15 +4,15 @@ import { ArrowDownRight, ArrowUpRight, Menu, Search, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 const images = {
-  hero: "/manus-storage/hero_55e3aafa.jpg",
-  faith: "/manus-storage/faith_62552905.jpg",
-  machine: "/manus-storage/machine_7126fb05.jpg",
-  liminal: "/manus-storage/liminal_2e0c1ac0.jpg",
-  body: "/manus-storage/body_034f1343.jpg",
-  weirdcore: "/manus-storage/weirdcore_2a609490.jpg",
-  gargoyle: "/manus-storage/gargoyle_734fe71c.jpg",
-  ritual: "/manus-storage/ritual_77455d59.jpg",
-  mark: "/manus-storage/veilhouse-mark_d304fc45.png",
+  hero: "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
+  faith: "/manus-storage/faith_62552905_f758bc59.jpg",
+  machine: "/manus-storage/machine_7126fb05_361805ef.jpg",
+  liminal: "/manus-storage/liminal_2e0c1ac0_11783296.jpg",
+  body: "/manus-storage/body_034f1343_8c04d7fc.jpg",
+  weirdcore: "/manus-storage/weirdcore_2a609490_c751c3dc.jpg",
+  gargoyle: "/manus-storage/gargoyle_734fe71c_26f9172d.jpg",
+  ritual: "/manus-storage/ritual_77455d59_5f2cee8c.jpg",
+  mark: "/manus-storage/veilhouse-mark_d304fc45_cf2dffe7.png",
 };
 
 const entries = [

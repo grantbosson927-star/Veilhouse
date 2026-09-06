@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 
-const dreamImage = "/manus-storage/hero_55e3aafa.jpg";
+const dreamImage = "/manus-storage/hero_55e3aafa_b28eacd7.jpg";
 const dreamStates = [
   { id: "00012", title: "The Hallway Behind The Wallpaper", text: "A corridor grows one door longer each time you look away. The wallpaper remembers the shape of your hands.", material: "paper / damp plaster", sound: "low signal" },
   { id: "00013", title: "The Room That Watches Back", text: "Every window is dark except the one inside your chest. Something on the other side is learning your name.", material: "glass / held breath", sound: "distant static" },

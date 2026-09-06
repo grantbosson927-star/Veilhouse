@@ -4,14 +4,14 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 
 const images = {
-  faith: "/manus-storage/faith_62552905.jpg",
-  machine: "/manus-storage/machine_7126fb05.jpg",
-  liminal: "/manus-storage/liminal_2e0c1ac0.jpg",
-  body: "/manus-storage/body_034f1343.jpg",
-  weirdcore: "/manus-storage/weirdcore_2a609490.jpg",
-  gargoyle: "/manus-storage/gargoyle_734fe71c.jpg",
-  ritual: "/manus-storage/ritual_77455d59.jpg",
-  hero: "/manus-storage/hero_55e3aafa.jpg",
+  faith: "/manus-storage/faith_62552905_f758bc59.jpg",
+  machine: "/manus-storage/machine_7126fb05_361805ef.jpg",
+  liminal: "/manus-storage/liminal_2e0c1ac0_11783296.jpg",
+  body: "/manus-storage/body_034f1343_8c04d7fc.jpg",
+  weirdcore: "/manus-storage/weirdcore_2a609490_c751c3dc.jpg",
+  gargoyle: "/manus-storage/gargoyle_734fe71c_26f9172d.jpg",
+  ritual: "/manus-storage/ritual_77455d59_5f2cee8c.jpg",
+  hero: "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
   cathedral: "/manus-storage/veilhouse-detail-faith_adc22258.jpg",
   signal: "/manus-storage/veilhouse-detail-machine_76c2621c.jpg",
   corridor: "/manus-storage/veilhouse-detail-liminal_1c712a5f.jpg",
