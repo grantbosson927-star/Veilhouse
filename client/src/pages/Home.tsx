@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Menu, Search, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { religiousHorrorRecords } from "./religiousHorror";
+import { archiveImages } from "./archiveImages";
+import { archiveMetadata } from "./archiveMetadata";
 
 const images = {
   hero: "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
@@ -16,8 +18,10 @@ const images = {
   mark: "/manus-storage/veilhouse-mark_d304fc45_cf2dffe7.png",
 };
 
-const entries = [
-  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/manus-storage/RH-001_d34455ed.jpg", note: "The cathedral roots in the marrow." },
+type CuratedEntry = { slug: string; title: string; category: string; number: string; image: string; note: string };
+
+const entries: CuratedEntry[] = [
+  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/manus-storage/RH-001_6f5c3f36.jpg", note: "The cathedral roots in the marrow." },
   { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "002", image: "/manus-storage/01_f41840ae.jpg", note: "When the signal starts watching back." },
   { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "003", image: "/manus-storage/01_34f8af8c.jpg", note: "A corridor with no outside." },
   { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "004", image: "/manus-storage/01_66075c21.jpg", note: "The body as a building site." },
@@ -27,11 +31,11 @@ const entries = [
 ];
 
 const religiousHorrorImages = [
-  "RH-001_d34455ed.jpg", "RH-002_560becb2.jpg", "RH-003_7761ce95.jpg", "RH-004_c2f84f3e.jpg",
-  "RH-005_0198104b.jpg", "RH-006_6dc149f6.jpg", "RH-007_c0dae31d.jpg", "RH-008_7af49b5c.jpg",
-  "RH-009_e9a9461d.jpg", "RH-010_f9da670f.jpg", "RH-011_404bf3b0.jpg", "RH-012_e36ddc67.jpg",
+  "RH-001_6f5c3f36.jpg", "RH-002_4c283963.jpg", "RH-003_c57f954b.jpg", "RH-004_d75d4461.jpg",
+  "RH-005_9c6f62f9.jpg", "RH-006_1df312be.jpg", "RH-007_eb6e7255.jpg", "RH-008_f6710024.jpg",
+  "RH-009_6f53fa05.jpg", "RH-010_99522fb7.jpg", "RH-011_105ffea4.jpg", "RH-012_21f53dd6.jpg",
 ];
-const religiousEntries = religiousHorrorRecords.map((record, index) => ({
+const religiousEntries: CuratedEntry[] = religiousHorrorRecords.map((record, index) => ({
   slug: record.title.toLowerCase().replaceAll(" ", "-"),
   title: record.title,
   category: "Religious horror",
@@ -39,6 +43,24 @@ const religiousEntries = religiousHorrorRecords.map((record, index) => ({
   image: `/manus-storage/${religiousHorrorImages[index]}`,
   note: record.description.split(".")[0] + ".",
 }));
+
+const categoryTitles: Record<string, string[]> = {
+  "technology-nightmares": ["A Signal With Teeth", "The Camera That Blinked", "Auto-Complete For Dying", "The House In The Firmware", "The Monitor With A Pulse", "The Number That Calls Back", "The Face Recognition Failure", "The Archive That Watches"],
+  "liminal-spaces": ["Ward 07 Never Ends", "The Waiting Room At 4:12", "The Elevator With No Ground", "The Hotel Between Addresses", "The Hallway Behind The Wallpaper", "The Stair That Returns", "The Restroom With A Window", "The Platform After Midnight"],
+  "body-horror": ["Anatomy Of A Ruin", "The Listening Body", "The Hand That Grew A Room", "The Scar With A Floor Plan", "The Mouth In The Shoulder", "The Second Skeleton", "The Organ That Remembers", "The Weather Under The Skin"],
+  weirdcore: ["The Nursery Is Listening", "The Birthday Room", "The Carpet With A Horizon", "The Television Under The Bed", "The Plastic Orchard", "The Hallway In Pastel", "The Drawing That Moved Rooms", "The Softest Door"],
+  "grotesque-architecture": ["Gargoyles At Dusk", "The Cathedral With A Pulse", "The Apartment That Added A Floor", "The Stairwell With Organs", "The Facade Beneath The Facade", "The Bridge That Leans Closer", "The House With A Weather Room", "The City In The Wall"],
+  "cult-horror": ["The Room That Gathered", "The Red Thread Census", "The Mask For The Absent", "The Table With One More Seat", "The Hymn Without A Composer", "The Door Behind The Door", "The Witness Ledger", "The Ceremony At Low Tide"],
+};
+const categoryEntries: Record<string, CuratedEntry[]> = Object.fromEntries(Object.entries(categoryTitles).map(([slug, titles]) => [slug, titles.map((title, index) => ({
+  slug: title.toLowerCase().replaceAll(" ", "-"),
+  title,
+  category: slug.replaceAll("-", " "),
+  number: String(index + 1).padStart(3, "0"),
+  image: archiveImages[slug][index],
+  note: archiveMetadata[slug][index].description.split(".")[0] + ".",
+}))]));
+const allCategoryEntries: Record<string, CuratedEntry[]> = { "religious-horror": religiousEntries, ...categoryEntries };
 
 const themes = ["All specimens", "Religious horror", "Body horror", "Technology nightmares", "Liminal spaces", "Weirdcore", "Grotesque architecture", "Cult horror"];
 
@@ -76,11 +98,12 @@ export default function Home() {
   const publishedPostsQuery = trpc.curator.published.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
 
-  const filteredEntries = useMemo(() => (activeTheme === "Religious horror" ? religiousEntries : entries).filter((entry) => {
-    const matchesTheme = activeTheme === "All specimens" || entry.category === activeTheme;
+  const activeEntries: CuratedEntry[] = activeTheme === "All specimens" ? entries : allCategoryEntries[activeTheme.replaceAll(" ", "-")] || [];
+  const filteredEntries = useMemo(() => activeEntries.filter((entry) => {
+    const matchesTheme = activeTheme === "All specimens" || entry.category.toLowerCase() === activeTheme.toLowerCase();
     const matchesQuery = `${entry.title} ${entry.category}`.toLowerCase().includes(query.toLowerCase());
     return matchesTheme && matchesQuery;
-  }), [activeTheme, query]);
+  }), [activeEntries, activeTheme, query]);
 
   const jumpToSignal = () => document.getElementById("signal")?.scrollIntoView({ behavior: "smooth" });
 

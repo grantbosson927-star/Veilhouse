@@ -10,7 +10,8 @@
 - [x] Browsable Archive landing page with seven category doors
 - [x] Individual category routes with isolated category-specific specimens
 - [x] Religious Horror expanded to RH-001 through RH-012 with full archival records
-- [x] Six remaining category doors retained with eight structured specimen placeholders each
+- [x] Six remaining category doors retained with eight structured specimen records each
+- [x] Full medium, location, accession date, description, curator note, and AI image prompt added to all six new categories
 - [x] Manifesto page with five philosophical sections and long-form copy
 - [x] Dispatches page with deep dive, artist spotlight, announcement, and subscription framing
 - [x] Dedicated dispatch detail routes
@@ -20,25 +21,27 @@
 - [x] Shared horror-themed page loading state
 - [x] Shared image hover enlargement interaction with reduced-motion support
 
-## Completed archive visual pass
+## Completed archive visual and navigation pass
+- [x] Re-rendered and uploaded all twelve Religious Horror images in the shared analog-film horror style
+- [x] Remapped RH-001 through RH-012 to the re-rendered assets
 - [x] Generated and uploaded eight cohesive analog-horror images for Technology Nightmares
 - [x] Generated and uploaded eight cohesive analog-horror images for Liminal Spaces
 - [x] Generated and uploaded eight cohesive analog-horror images for Body Horror
 - [x] Generated and uploaded eight cohesive analog-horror images for Weirdcore
 - [x] Generated and uploaded eight cohesive analog-horror images for Grotesque Architecture
 - [x] Generated and uploaded eight cohesive analog-horror images for Cult Horror
-- [x] Mapped every remaining category specimen to its own dedicated managed-storage image
-- [x] Updated homepage lead cards to use the generated image from each category
-- [x] Preserved existing dedicated Religious Horror images and full RH archive records
+- [x] Mapped every category specimen to its own dedicated managed-storage image
+- [x] Fixed 000 Curated Specimens filters so every category reveals its complete specimen list
+- [x] Kept the homepage compact while exposing full archival records and prompts on category pages
+- [x] Updated homepage lead cards to use the current dedicated category images
 
 ## Verification
 - [x] TypeScript check
 - [x] Vitest regression suite from prior update
 - [x] Production build
-- [x] Browser verification of Technology Nightmares and Cult Horror eight-image routes
-- [x] Asset audit confirmed 48 generated files across the six remaining categories
-- [x] Checkpoint saved after the seven-door image expansion
+- [x] Browser verification of Technology Nightmares full records and Religious Horror RH-001 through RH-012
+- [x] Asset audit confirmed 48 generated files across the six new categories plus 12 re-rendered Religious Horror files
+- [x] Final checkpoint saved after this update
 
 ## Deferred by user request
-- [x] Re-rendering the already-complete Religious Horror set in the new shared analog-film style deferred; current dedicated RH images remain mapped and functional
 - [x] Cloudflare/R2 migration deferred until site content is finalized

@@ -4,20 +4,21 @@ import { categories } from "./Archive";
 import { useLocation, useRoute } from "wouter";
 import { religiousHorrorRecords } from "./religiousHorror";
 import { archiveImages } from "./archiveImages";
+import { archiveMetadata } from "./archiveMetadata";
 
 const religiousHorrorImages = [
-  "/manus-storage/RH-001_d34455ed.jpg",
-  "/manus-storage/RH-002_560becb2.jpg",
-  "/manus-storage/RH-003_7761ce95.jpg",
-  "/manus-storage/RH-004_c2f84f3e.jpg",
-  "/manus-storage/RH-005_0198104b.jpg",
-  "/manus-storage/RH-006_6dc149f6.jpg",
-  "/manus-storage/RH-007_c0dae31d.jpg",
-  "/manus-storage/RH-008_7af49b5c.jpg",
-  "/manus-storage/RH-009_e9a9461d.jpg",
-  "/manus-storage/RH-010_f9da670f.jpg",
-  "/manus-storage/RH-011_404bf3b0.jpg",
-  "/manus-storage/RH-012_e36ddc67.jpg",
+  "/manus-storage/RH-001_6f5c3f36.jpg",
+  "/manus-storage/RH-002_4c283963.jpg",
+  "/manus-storage/RH-003_c57f954b.jpg",
+  "/manus-storage/RH-004_d75d4461.jpg",
+  "/manus-storage/RH-005_9c6f62f9.jpg",
+  "/manus-storage/RH-006_1df312be.jpg",
+  "/manus-storage/RH-007_eb6e7255.jpg",
+  "/manus-storage/RH-008_f6710024.jpg",
+  "/manus-storage/RH-009_6f53fa05.jpg",
+  "/manus-storage/RH-010_99522fb7.jpg",
+  "/manus-storage/RH-011_105ffea4.jpg",
+  "/manus-storage/RH-012_21f53dd6.jpg",
 ];
 
 type Specimen = { name: string; label: string; image?: string; id?: string; medium?: string; location?: string; accessionDate?: string; description?: string; curatorNote?: string; prompt?: string };
@@ -107,6 +108,15 @@ const categoryContent: Record<string, CategoryContent> = {
     ].map(([name, label]) => ({ name, label })),
   },
 };
+
+for (const [slug, metadata] of Object.entries(archiveMetadata)) {
+  const specimens = categoryContent[slug]?.specimens;
+  if (!specimens) continue;
+  categoryContent[slug] = {
+    ...categoryContent[slug],
+    specimens: specimens.map((specimen, index) => ({ ...specimen, id: specimen.id || `${slug.toUpperCase()}-${String(index + 1).padStart(3, "0")}`, ...metadata[index] })),
+  };
+}
 
 export default function CategoryArchive() {
   const [, params] = useRoute("/archive/:slug");
