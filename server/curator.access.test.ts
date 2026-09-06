@@ -24,6 +24,22 @@ function createContext(overrides: Partial<NonNullable<TrpcContext["user"]>> = {}
 }
 
 describe("curator access", () => {
+  it("unlocks the curator desk for the configured curator email on another Manus account", async () => {
+    let setCookie = "";
+    const context = createContext({ email: "another-manus-account@example.com" });
+    context.res = {
+      cookie: (_name: string, value: string) => { setCookie = value; },
+    } as TrpcContext["res"];
+    const caller = appRouter.createCaller(context);
+
+    await expect(caller.curator.unlock({ email: "brilliantelay5@gmail.com" })).resolves.toEqual({ unlocked: true });
+    expect(setCookie).toBeTruthy();
+
+    const accessContext = createContext({ email: "another-manus-account@example.com" });
+    accessContext.req = { headers: { cookie: `veilhouse-curator-access=${setCookie}` } } as TrpcContext["req"];
+    await expect(appRouter.createCaller(accessContext).curator.access()).resolves.toBe(true);
+  });
+
   it("rejects authenticated non-admin users", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(caller.curator.list()).rejects.toMatchObject<TRPCError>({ code: "FORBIDDEN" });

@@ -2,7 +2,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { parse as parseCookie } from "cookie";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { isProjectOwner, ownerProcedure, publicProcedure, router } from "./_core/trpc";
+import { isProjectOwner, ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
 import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { createCuratorPost, createCuratorRevision, deleteCuratorPost, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listPublishedCuratorPosts, updateCuratorPost } from "./db";
 import { storagePut } from "./storage";
@@ -25,7 +26,9 @@ export const appRouter = router({
   }),
 
   curator: router({
-    access: publicProcedure.query(({ ctx }) => Boolean(ctx.user && isProjectOwner(ctx.user))),
+    access: publicProcedure.query(({ ctx }) => ctx.user ? hasCuratorAccess(ctx.req, ctx.user) : false),
+    unlock: protectedProcedure.input(z.object({ email: z.string().email() })).mutation(async ({ input, ctx }) => ({ unlocked: await grantCuratorAccess(ctx.req, ctx.res, ctx.user, input.email) })),
+    lock: protectedProcedure.mutation(({ ctx }) => { revokeCuratorAccess(ctx.req, ctx.res); return { success: true } as const; }),
     published: publicProcedure.query(() => listPublishedCuratorPosts()),
     bySlug: publicProcedure.input(z.object({ slug: z.string().min(1) })).query(async ({ input }) => { const post = await getCuratorPostBySlug(input.slug); return post?.status === "published" ? post : null; }),
     list: ownerProcedure.query(() => listCuratorPosts()),

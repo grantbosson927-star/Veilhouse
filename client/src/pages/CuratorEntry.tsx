@@ -12,6 +12,12 @@ export default function CuratorEntry() {
     retry: false,
     enabled: Boolean(user),
   });
+  const unlock = trpc.curator.unlock.useMutation({
+    onSuccess: (result) => {
+      if (result.unlocked) navigate("/curator-admin");
+      else setMessage("That address is not the configured curator address.");
+    },
+  });
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
@@ -20,8 +26,8 @@ export default function CuratorEntry() {
     const normalized = email.trim().toLowerCase();
     if (!normalized) return;
 
-    if (user && ownerAccess.data && user.email?.toLowerCase() === normalized) {
-      navigate("/curator-admin");
+    if (user) {
+      unlock.mutate({ email: normalized });
       return;
     }
 
@@ -49,7 +55,7 @@ export default function CuratorEntry() {
       <form onSubmit={submit} style={{ width: "min(100%, 420px)", display: "grid", gap: 12 }}>
         <label htmlFor="curator-email" style={{ color: "#bd5445", fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", textAlign: "left" }}>Your email</label>
         <input id="curator-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" style={{ width: "100%", padding: "14px 0", border: 0, borderBottom: "1px solid rgba(229,223,211,.35)", outline: 0, background: "transparent", color: "#e5dfd3", font: "inherit", fontSize: 16 }} />
-        <button className="button-outline" type="submit" style={{ justifyContent: "center" }}>Enter the desk <ArrowUpRight size={16} /></button>
+        <button className="button-outline" type="submit" disabled={unlock.isPending} style={{ justifyContent: "center" }}>{unlock.isPending ? <Loader2 className="spin" size={16} /> : null} Enter the desk <ArrowUpRight size={16} /></button>
       </form>
       {!user && <button className="button-outline" onClick={() => startLogin()}>Sign in as curator <ArrowUpRight size={16} /></button>}
       {user && !ownerAccess.data && <button className="button-outline" onClick={() => startLogin()}>Sign in with another account <ArrowUpRight size={16} /></button>}
