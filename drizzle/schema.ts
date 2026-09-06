@@ -81,3 +81,13 @@ export const subscribers = mysqlTable("subscribers", {
 });
 
 export type Subscriber = typeof subscribers.$inferSelect;
+
+export const dreamSubmissions = mysqlTable("dream_submissions", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  dreamText: text("dreamText").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DreamSubmission = typeof dreamSubmissions.$inferSelect;
+export type InsertDreamSubmission = typeof dreamSubmissions.$inferInsert;

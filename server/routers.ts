@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { isProjectOwner, ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
 import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
-import { addSubscriber, createCuratorPost, createCuratorRevision, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 
@@ -95,9 +95,14 @@ export const appRouter = router({
       }
       return deleteCuratorPost(input.id);
     }),
+    dreams: ownerProcedure.query(() => listDreamSubmissions()),
   }),
   dispatch: router({
     subscribe: publicProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => addSubscriber(input.email)),
+  }),
+  dreams: router({
+    submit: publicProcedure.input(z.object({ title: z.string().min(1).max(255), dreamText: z.string().min(1).max(5000) })).mutation(({ input }) => createDreamSubmission({ title: input.title.trim(), dreamText: input.dreamText.trim() })),
+    recent: publicProcedure.query(() => listDreamSubmissions()),
   }),
 });
 

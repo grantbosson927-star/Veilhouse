@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CuratorPost, CuratorPostRevision, InsertCuratorPost, InsertCuratorPostRevision, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, subscribers, users } from "../drizzle/schema";
+import { CuratorPost, CuratorPostRevision, DreamSubmission, InsertCuratorPost, InsertCuratorPostRevision, InsertDreamSubmission, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, dreamSubmissions, subscribers, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -186,4 +186,18 @@ export async function listSubscribers() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(subscribers).orderBy(desc(subscribers.createdAt));
+}
+
+export async function createDreamSubmission(submission: InsertDreamSubmission): Promise<DreamSubmission | undefined> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(dreamSubmissions).values(submission);
+  const rows = await db.select().from(dreamSubmissions).where(eq(dreamSubmissions.id, result[0].insertId));
+  return rows[0];
+}
+
+export async function listDreamSubmissions() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(dreamSubmissions).orderBy(desc(dreamSubmissions.createdAt)).limit(12);
 }
