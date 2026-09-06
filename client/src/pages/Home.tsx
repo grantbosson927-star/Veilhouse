@@ -75,11 +75,11 @@ export default function Home() {
       <header className="topbar">
         <a className="wordmark" href="#top" aria-label="VEILHOUSE home"><img className="wordmark-mark" src={images.mark} alt="" /><span>VEIL</span><i>HOUSE</i></a>
         <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Primary navigation">
-          <a href="#archive" onClick={() => setMenuOpen(false)}>Archive</a>
-          <a href="#manifesto" onClick={() => setMenuOpen(false)}>Manifesto</a>
-          <a href="#dispatches" onClick={() => setMenuOpen(false)}>Dispatches</a>
-          <a href="#curator" onClick={() => setMenuOpen(false)}>Curator</a>
-          <a href="#field-notes" onClick={() => setMenuOpen(false)}>Field Notes</a>
+          <a href="/archive" onClick={() => setMenuOpen(false)}>Archive</a>
+          <a href="/manifesto" onClick={() => setMenuOpen(false)}>Manifesto</a>
+          <a href="/dispatches" onClick={() => setMenuOpen(false)}>Dispatches</a>
+          <a href="/curator" onClick={() => setMenuOpen(false)}>Curator</a>
+          <a href="/field-notes" onClick={() => setMenuOpen(false)}>Field Notes</a>
           <a href="/dreams" onClick={() => setMenuOpen(false)}>Dreams</a>
         </nav>
         <div className="topbar-actions">

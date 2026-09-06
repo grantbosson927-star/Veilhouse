@@ -1,0 +1,14 @@
+{
+  "bucket": "veilhouse-media",
+  "objects": [
+    { "key": "veilhouse-mark_d304fc45.png", "contentType": "image/png" },
+    { "key": "hero_55e3aafa.jpg", "contentType": "image/jpeg" },
+    { "key": "faith_62552905.jpg", "contentType": "image/jpeg" },
+    { "key": "machine_7126fb05.jpg", "contentType": "image/jpeg" },
+    { "key": "liminal_2e0c1ac0.jpg", "contentType": "image/jpeg" },
+    { "key": "body_034f1343.jpg", "contentType": "image/jpeg" },
+    { "key": "weirdcore_2a609490.jpg", "contentType": "image/jpeg" },
+    { "key": "gargoyle_734fe71c.jpg", "contentType": "image/jpeg" },
+    { "key": "ritual_77455d59.jpg", "contentType": "image/jpeg" }
+  ]
+}
