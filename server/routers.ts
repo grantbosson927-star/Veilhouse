@@ -24,7 +24,7 @@ async function issueSession(ctx: TrpcContext, user: User, curatorEmail: string) 
   if (user.email && user.email.toLowerCase() === curatorEmail) {
     await grantCuratorAccess(ctx.req, ctx.res, user, curatorEmail);
   }
-  return { user: toPublicUser(user) } as const;
+  return { user: toPublicUser(user), token: sessionToken } as const;
 }
 
 export const appRouter = router({

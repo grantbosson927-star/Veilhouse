@@ -115,6 +115,7 @@ export default function Home() {
           <a href="/enter" onClick={() => setMenuOpen(false)}>Account</a>
         </nav>
         <div className="topbar-actions">
+          <a className="issue-link" href="/enter">Account <ArrowUpRight size={15} /></a>
           <a className="issue-link" href="#dispatches">Issue 03 <ArrowUpRight size={15} /></a>
           <button className="menu-button" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
         </div>

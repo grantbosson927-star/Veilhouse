@@ -1,38 +1,56 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { writeSessionToken } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { ArrowUpRight, Loader2, LockKeyhole } from "lucide-react";
 import { FormEvent, useState } from "react";
-import { useLocation } from "wouter";
+
+const fieldStyle = {
+  width: "100%",
+  padding: "14px 0",
+  border: 0,
+  borderBottom: "1px solid rgba(229,223,211,.35)",
+  outline: 0,
+  background: "transparent",
+  color: "#e5dfd3",
+  font: "inherit",
+  fontSize: 16,
+} as const;
+
+const labelStyle = {
+  color: "#bd5445",
+  fontSize: 10,
+  letterSpacing: ".14em",
+  textTransform: "uppercase" as const,
+  textAlign: "left" as const,
+};
 
 export default function Enter() {
-  const [, navigate] = useLocation();
   const { user, loading, logout, refresh } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const utils = trpc.useUtils();
+  const [mode, setMode] = useState<"login" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
+
+  const applySession = async (result: { user: NonNullable<typeof user>; token: string }) => {
+    writeSessionToken(result.token);
+    utils.auth.me.setData(undefined, result.user);
+    await refresh();
+  };
 
   const login = trpc.auth.login.useMutation({
-    onSuccess: async () => {
-      await refresh();
-      navigate("/");
-    },
+    onSuccess: (result) => applySession(result),
   });
   const signup = trpc.auth.signup.useMutation({
-    onSuccess: async () => {
-      await refresh();
-      navigate("/");
-    },
+    onSuccess: (result) => applySession(result),
   });
   const busy = login.isPending || signup.isPending;
-  const error = login.error?.message || signup.error?.message || message;
+  const error = login.error?.message || signup.error?.message;
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    setMessage("");
-    if (mode === "login") login.mutate({ email, password });
-    else signup.mutate({ email, password, name: name.trim() || undefined });
+    if (mode === "login") login.mutate({ email: email.trim(), password });
+    else signup.mutate({ email: email.trim(), password, name: name.trim() || undefined });
   };
 
   if (loading) {
@@ -58,25 +76,30 @@ export default function Enter() {
   return (
     <div className="admin-gate">
       <LockKeyhole size={18} color="#bd5445" />
-      <p className="eyebrow oxblood">{mode === "login" ? "Return visitor" : "New name in the ledger"}</p>
-      <h1>{mode === "login" ? <>Enter the<br /><em>house.</em></> : <>Leave your<br /><em>address.</em></>}</h1>
-      <p>{mode === "login" ? "Sign in with the email you left at the door." : "Create an account with your email and a password of at least eight characters."}</p>
+      <p className="eyebrow oxblood">Visitor ledger</p>
+      <h1>{mode === "signup" ? <>Create an<br /><em>account.</em></> : <>Sign in to<br /><em>the house.</em></>}</h1>
+      <p>{mode === "signup" ? "Use any email and a password of at least eight characters. You can sign back in with the same details later." : "Enter the email and password you used to create your account."}</p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+        <button className="button-outline" type="button" onClick={() => setMode("signup")} style={mode === "signup" ? { borderColor: "#bd5445", color: "#e5dfd3" } : undefined}>Create account</button>
+        <button className="button-outline" type="button" onClick={() => setMode("login")} style={mode === "login" ? { borderColor: "#bd5445", color: "#e5dfd3" } : undefined}>Sign in</button>
+      </div>
       <form onSubmit={submit} style={{ width: "min(100%, 420px)", display: "grid", gap: 12 }}>
         {mode === "signup" && (
           <>
-            <label htmlFor="account-name" style={{ color: "#bd5445", fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", textAlign: "left" }}>Name</label>
-            <input id="account-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="What the house should call you" style={{ width: "100%", padding: "14px 0", border: 0, borderBottom: "1px solid rgba(229,223,211,.35)", outline: 0, background: "transparent", color: "#e5dfd3", font: "inherit", fontSize: 16 }} />
+            <label htmlFor="account-name" style={labelStyle}>Name (optional)</label>
+            <input id="account-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="What the house should call you" style={fieldStyle} />
           </>
         )}
-        <label htmlFor="account-email" style={{ color: "#bd5445", fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", textAlign: "left" }}>Email</label>
-        <input id="account-email" type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" style={{ width: "100%", padding: "14px 0", border: 0, borderBottom: "1px solid rgba(229,223,211,.35)", outline: 0, background: "transparent", color: "#e5dfd3", font: "inherit", fontSize: 16 }} />
-        <label htmlFor="account-password" style={{ color: "#bd5445", fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", textAlign: "left" }}>Password</label>
-        <input id="account-password" type="password" required autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={mode === "signup" ? 8 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} style={{ width: "100%", padding: "14px 0", border: 0, borderBottom: "1px solid rgba(229,223,211,.35)", outline: 0, background: "transparent", color: "#e5dfd3", font: "inherit", fontSize: 16 }} />
-        <button className="button-outline" type="submit" disabled={busy} style={{ justifyContent: "center" }}>{busy ? <Loader2 className="spin" size={16} /> : null}{mode === "login" ? "Sign in" : "Create account"} <ArrowUpRight size={16} /></button>
+        <label htmlFor="account-email" style={labelStyle}>Email</label>
+        <input id="account-email" type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" style={fieldStyle} />
+        <label htmlFor="account-password" style={labelStyle}>Password</label>
+        <input id="account-password" type="password" required autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 8 characters" style={fieldStyle} />
+        <button className="button-outline" type="submit" disabled={busy} style={{ justifyContent: "center" }}>
+          {busy ? <Loader2 className="spin" size={16} /> : null}
+          {mode === "signup" ? "Create account" : "Sign in"}
+          <ArrowUpRight size={16} />
+        </button>
       </form>
-      <button className="text-link" type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); }} style={{ background: "none", border: 0, color: "#bd5445" }}>
-        {mode === "login" ? "Need a key? Create an account" : "Already inside? Sign in"}
-      </button>
       {error && <p role="status" style={{ maxWidth: 420, color: "#bd5445" }}>{error}</p>}
       <a className="text-link" href="/">Return to the public house</a>
     </div>
