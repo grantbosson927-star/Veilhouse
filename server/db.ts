@@ -193,6 +193,7 @@ export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
     set: {
       title: specimen.title,
       category: specimen.category,
+      excerpt: specimen.excerpt ?? null,
       story: specimen.story ?? null,
       imageUrl: specimen.imageUrl ?? null,
       videoUrl: specimen.videoUrl ?? null,

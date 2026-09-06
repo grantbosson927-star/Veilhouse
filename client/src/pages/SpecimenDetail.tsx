@@ -46,7 +46,7 @@ export default function SpecimenDetail() {
   const curatorPostQuery = trpc.curator.bySlug.useQuery({ slug }, { enabled: !record, retry: false });
   const specimenOverrideQuery = trpc.curator.specimens.useQuery();
   const specimenOverride = specimenOverrideQuery.data?.find((item) => item.slug === slug);
-  const renderRecord = record && specimenOverride ? { ...record, story: specimenOverride.story || record.story, image: specimenOverride.imageUrl || record.image, videoUrl: specimenOverride.videoUrl || "", heroMedia: specimenOverride.heroMedia } : record;
+  const renderRecord = record && specimenOverride ? { ...record, note: specimenOverride.excerpt || record.note, story: specimenOverride.story || record.story, image: specimenOverride.imageUrl || record.image, videoUrl: specimenOverride.videoUrl || "", heroMedia: specimenOverride.heroMedia } : record;
 
   if (!record && curatorPostQuery.data) return <CuratorPostDetail post={curatorPostQuery.data as PublishedPost} />;
   if (!record) return <main className="detail-missing"><a href="/#archive"><ArrowLeft size={16} /> Return to the archive</a><h1>{curatorPostQuery.isLoading ? "Reading the record…" : "This door is not on the map."}</h1></main>;

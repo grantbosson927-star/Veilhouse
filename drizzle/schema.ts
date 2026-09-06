@@ -77,6 +77,7 @@ export const curatorSpecimens = mysqlTable("curator_specimens", {
   slug: varchar("slug", { length: 255 }).primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   category: varchar("category", { length: 120 }).notNull(),
+  excerpt: text("excerpt"),
   story: text("story"),
   imageUrl: text("imageUrl"),
   videoUrl: text("videoUrl"),

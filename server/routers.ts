@@ -37,6 +37,7 @@ export const appRouter = router({
       slug: z.string().min(1).max(255),
       title: z.string().min(1).max(255),
       category: z.string().min(1).max(120),
+      excerpt: z.string().optional(),
       story: z.string().optional(),
       imageUrl: mediaRef.optional(),
       videoUrl: mediaRef.optional(),

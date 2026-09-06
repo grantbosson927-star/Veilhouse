@@ -91,11 +91,12 @@ export default function Home() {
   const specimenOverridesQuery = trpc.curator.specimens.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
   const [heroIndex, setHeroIndex] = useState(0);
-  const heroSlides = useMemo(() => entries.map((entry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, heroImage: saved?.imageUrl || entry.image, heroVideo: saved?.videoUrl || "", heroMedia: saved?.heroMedia || "image", heroStory: saved?.story || entry.note }; }), [specimenOverridesQuery.data]);
+  const overriddenEntries = useMemo(() => { const apply = (entry: CuratedEntry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, image: saved?.imageUrl || entry.image, note: saved?.excerpt || entry.note }; }; return { lead: entries.map(apply), categories: Object.fromEntries(Object.entries(allCategoryEntries).map(([category, categoryEntries]) => [category, categoryEntries.map(apply)])) as Record<string, CuratedEntry[]> }; }, [specimenOverridesQuery.data]);
+  const heroSlides = useMemo(() => overriddenEntries.lead.map((entry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, heroImage: entry.image, heroVideo: saved?.videoUrl || "", heroMedia: saved?.heroMedia || "image", heroStory: saved?.excerpt || entry.note }; }), [overriddenEntries, specimenOverridesQuery.data]);
   useEffect(() => { if (heroSlides.length < 2) return; const timer = window.setInterval(() => setHeroIndex((current) => (current + 1) % heroSlides.length), 7000); return () => window.clearInterval(timer); }, [heroSlides.length]);
   const hero = heroSlides[heroIndex] || heroSlides[0];
 
-  const activeEntries: CuratedEntry[] = activeTheme === "All specimens" ? entries : allCategoryEntries[activeTheme.toLowerCase().replaceAll(" ", "-")] || [];
+  const activeEntries: CuratedEntry[] = activeTheme === "All specimens" ? overriddenEntries.lead : overriddenEntries.categories[activeTheme.toLowerCase().replaceAll(" ", "-")] || [];
   const filteredEntries = useMemo(() => activeEntries.filter((entry) => {
     const matchesTheme = activeTheme === "All specimens" || entry.category.toLowerCase() === activeTheme.toLowerCase();
     const matchesQuery = `${entry.title} ${entry.category}`.toLowerCase().includes(query.toLowerCase());
