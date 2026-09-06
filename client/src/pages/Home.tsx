@@ -44,21 +44,13 @@ const religiousEntries: CuratedEntry[] = religiousHorrorRecords.map((record, ind
   note: record.description.split(".")[0] + ".",
 }));
 
-const categoryTitles: Record<string, string[]> = {
-  "technology-nightmares": ["A Signal With Teeth", "The Camera That Blinked", "Auto-Complete For Dying", "The House In The Firmware", "The Monitor With A Pulse", "The Number That Calls Back", "The Face Recognition Failure", "The Archive That Watches"],
-  "liminal-spaces": ["Ward 07 Never Ends", "The Waiting Room At 4:12", "The Elevator With No Ground", "The Hotel Between Addresses", "The Hallway Behind The Wallpaper", "The Stair That Returns", "The Restroom With A Window", "The Platform After Midnight"],
-  "body-horror": ["Anatomy Of A Ruin", "The Listening Body", "The Hand That Grew A Room", "The Scar With A Floor Plan", "The Mouth In The Shoulder", "The Second Skeleton", "The Organ That Remembers", "The Weather Under The Skin"],
-  weirdcore: ["The Nursery Is Listening", "The Birthday Room", "The Carpet With A Horizon", "The Television Under The Bed", "The Plastic Orchard", "The Hallway In Pastel", "The Drawing That Moved Rooms", "The Softest Door"],
-  "grotesque-architecture": ["Gargoyles At Dusk", "The Cathedral With A Pulse", "The Apartment That Added A Floor", "The Stairwell With Organs", "The Facade Beneath The Facade", "The Bridge That Leans Closer", "The House With A Weather Room", "The City In The Wall"],
-  "cult-horror": ["The Room That Gathered", "The Red Thread Census", "The Mask For The Absent", "The Table With One More Seat", "The Hymn Without A Composer", "The Door Behind The Door", "The Witness Ledger", "The Ceremony At Low Tide"],
-};
-const categoryEntries: Record<string, CuratedEntry[]> = Object.fromEntries(Object.entries(categoryTitles).map(([slug, titles]) => [slug, titles.map((title, index) => ({
-  slug: title.toLowerCase().replaceAll(" ", "-"),
-  title,
+const categoryEntries: Record<string, CuratedEntry[]> = Object.fromEntries(Object.entries(archiveMetadata).map(([slug, records]) => [slug, records.map((record, index) => ({
+  slug: record.title.toLowerCase().replaceAll(" ", "-"),
+  title: record.title,
   category: slug.replaceAll("-", " "),
-  number: String(index + 1).padStart(3, "0"),
-  image: archiveImages[slug][index],
-  note: archiveMetadata[slug][index].description.split(".")[0] + ".",
+  number: record.id,
+  image: archiveImages[slug]?.[index] || "",
+  note: `${record.description.split(".")[0]}.`,
 }))]));
 const allCategoryEntries: Record<string, CuratedEntry[]> = { "religious-horror": religiousEntries, ...categoryEntries };
 
