@@ -1,26 +1,20 @@
 export const archiveImages: Record<string, string[]> = {
+  "body-horror": [
+    "/manus-storage/BH-001_384c521e.jpg", "/manus-storage/BH-002_126de437.jpg", "/manus-storage/BH-003_53408828.jpg", "/manus-storage/BH-004_3df23231.jpg",
+  ],
   "technology-nightmares": [
-    "/manus-storage/01_f41840ae.jpg", "/manus-storage/02_8f603fde.jpg", "/manus-storage/03_b2ca3532.jpg", "/manus-storage/04_329d23e9.jpg",
-    "/manus-storage/05_6b058c01.jpg", "/manus-storage/06_683c59f6.jpg", "/manus-storage/07_17aac873.jpg", "/manus-storage/08_322b4579.jpg",
+    "/manus-storage/TN-001_43432149.jpg", "/manus-storage/TN-002_1cf79f5b.jpg", "/manus-storage/TN-003_ef573057.jpg", "/manus-storage/TN-004_7e44df08.jpg",
   ],
   "liminal-spaces": [
-    "/manus-storage/01_34f8af8c.jpg", "/manus-storage/02_0a47eee0.jpg", "/manus-storage/03_7b707fac.jpg", "/manus-storage/04_62cc489a.jpg",
-    "/manus-storage/05_232124a9.jpg", "/manus-storage/06_f89e948c.jpg", "/manus-storage/07_3f2f2e79.jpg", "/manus-storage/08_fd159a69.jpg",
-  ],
-  "body-horror": [
-    "/manus-storage/01_66075c21.jpg", "/manus-storage/02_a59e7cb7.jpg", "/manus-storage/03_7dc4d021.jpg", "/manus-storage/04_abf8661e.jpg",
-    "/manus-storage/05_d0a58c6a.jpg", "/manus-storage/06_917dd37a.jpg", "/manus-storage/07_c02dd0fd.jpg", "/manus-storage/08_6ac292fb.jpg",
+    "/manus-storage/LS-001_1088c800.jpg", "/manus-storage/LS-002_18952091.jpg", "/manus-storage/LS-003_ba789496.jpg", "/manus-storage/LS-004_9f48087f.jpg",
   ],
   "weirdcore": [
-    "/manus-storage/01_2fbcebda.jpg", "/manus-storage/02_ee2c40a7.jpg", "/manus-storage/03_6435103a.jpg", "/manus-storage/04_228578c9.jpg",
-    "/manus-storage/05_721728dd.jpg", "/manus-storage/06_06f7c986.jpg", "/manus-storage/07_b7da0335.jpg", "/manus-storage/08_1aa87967.jpg",
+    "/manus-storage/WC-001_473d6e04.jpg", "/manus-storage/WC-002_62a78353.jpg", "/manus-storage/WC-003_b9f7316d.jpg", "/manus-storage/WC-004_c4ecb9c1.jpg",
   ],
   "grotesque-architecture": [
-    "/manus-storage/01_cf99f82e.jpg", "/manus-storage/02_0bc5ec7c.jpg", "/manus-storage/03_56a2f03e.jpg", "/manus-storage/04_2faf22d4.jpg",
-    "/manus-storage/05_aea9a0f9.jpg", "/manus-storage/06_0b146c0f.jpg", "/manus-storage/07_37a3d1f6.jpg", "/manus-storage/08_9a9d958c.jpg",
+    "/manus-storage/GA-001_fe860b12.jpg", "/manus-storage/GA-002_c83fcb67.jpg", "/manus-storage/GA-003_bd1094d3.jpg", "/manus-storage/GA-004_f1ba1eaf.jpg",
   ],
   "cult-horror": [
-    "/manus-storage/01_e069807f.jpg", "/manus-storage/02_90f4f542.jpg", "/manus-storage/03_538b4d52.jpg", "/manus-storage/04_30912851.jpg",
-    "/manus-storage/05_29d9c6af.jpg", "/manus-storage/06_b6e9c7a7.jpg", "/manus-storage/07_ebf64564.jpg", "/manus-storage/08_c4052720.jpg",
+    "/manus-storage/CH-001_81485427.jpg", "/manus-storage/CH-002_5915ead1.jpg", "/manus-storage/CH-003_ada580dc.jpg", "/manus-storage/CH-004_4c4f6e2e.jpg",
   ],
 };
