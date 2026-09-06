@@ -8,6 +8,13 @@
       "when": 1788652476835,
       "tag": "0000_colorful_klaw",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1788654898467,
+      "tag": "0001_mute_power_pack",
+      "breakpoints": true
     }
   ]
 }
