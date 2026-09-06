@@ -7,9 +7,9 @@ import { archiveImages } from "./archiveImages";
 import { archiveMetadata, type ArchiveMetadata } from "./archiveMetadata";
 
 const religiousHorrorImages = [
-  "/manus-storage/RH-001_6f5c3f36.jpg", "/manus-storage/RH-002_4c283963.jpg", "/manus-storage/RH-003_c57f954b.jpg", "/manus-storage/RH-004_d75d4461.jpg",
-  "/manus-storage/RH-005_9c6f62f9.jpg", "/manus-storage/RH-006_1df312be.jpg", "/manus-storage/RH-007_eb6e7255.jpg", "/manus-storage/RH-008_f6710024.jpg",
-  "/manus-storage/RH-009_6f53fa05.jpg", "/manus-storage/RH-010_99522fb7.jpg", "/manus-storage/RH-011_105ffea4.jpg", "/manus-storage/RH-012_21f53dd6.jpg",
+  "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-001.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-002.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-003.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-004.jpg",
+  "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-005.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-006.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-007.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-008.jpg",
+  "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-009.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-010.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-011.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-012.jpg",
 ];
 
 type Specimen = ArchiveMetadata & { image?: string };

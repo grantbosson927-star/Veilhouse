@@ -1,16 +1,16 @@
-import { COOKIE_NAME } from "@shared/const";
-import { parse as parseCookie } from "cookie";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { isProjectOwner, ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
-import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
-import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen, upsertUser, getUserByOpenId } from "./db";
 import { storagePut } from "./storage";
 import { notifyOwner } from "./_core/notification";
+import { sdk } from "./_core/sdk";
+import { nextCronDate } from "./scheduleCron";
 import { z } from "zod";
 
-const mediaRef = z.string().refine((value) => value === "" || value.startsWith("/manus-storage/") || /^https?:\/\//.test(value), "Please enter a valid media URL");
+const mediaRef = z.string().refine((value) => value === "" || value.startsWith("/media/") || value.startsWith("/manus-storage/") || value.startsWith("/archive-assets/") || /^https?:\/\//.test(value), "Please enter a valid media URL");
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -28,6 +28,28 @@ export const appRouter = router({
 
   curator: router({
     access: publicProcedure.query(({ ctx }) => ctx.user ? hasCuratorAccess(ctx.req, ctx.user) : false),
+    signIn: publicProcedure.input(z.object({ email: z.string().email() })).mutation(async ({ input, ctx }) => {
+      const email = input.email.trim().toLowerCase();
+      const curatorEmail = await getCuratorEmail();
+      if (email !== curatorEmail) return { unlocked: false as const };
+      const openId = `curator:${email}`;
+      await upsertUser({ openId, name: "Curator", email, loginMethod: "curator-email", role: "admin", lastSignedIn: new Date() });
+      const user = await getUserByOpenId(openId) ?? {
+        id: 1,
+        openId,
+        name: "Curator",
+        email,
+        loginMethod: "curator-email",
+        role: "admin" as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSignedIn: new Date(),
+      };
+      const sessionToken = await sdk.createSessionToken(user.openId, { name: user.name || "Curator", expiresInMs: ONE_YEAR_MS });
+      const cookieOptions = getSessionCookieOptions(ctx.req);
+      ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      return { unlocked: await grantCuratorAccess(ctx.req, ctx.res, user, email) };
+    }),
     unlock: protectedProcedure.input(z.object({ email: z.string().email() })).mutation(async ({ input, ctx }) => ({ unlocked: await grantCuratorAccess(ctx.req, ctx.res, ctx.user, input.email) })),
     lock: protectedProcedure.mutation(({ ctx }) => { revokeCuratorAccess(ctx.req, ctx.res); return { success: true } as const; }),
     settings: ownerProcedure.query(() => getCuratorEmail()),
@@ -89,26 +111,15 @@ export const appRouter = router({
       if (post) await createCuratorRevision({ postId: post.id, authorId: ctx.user.id, title: post.title, category: post.category, excerpt: post.excerpt, story: post.story, imageUrl: post.imageUrl, videoUrl: post.videoUrl, status: post.status });
       return post;
     }),
-    schedule: ownerProcedure.input(z.object({ id: z.number().int(), cron: z.string().min(11).max(64) })).mutation(async ({ input, ctx }) => {
-      const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+    schedule: ownerProcedure.input(z.object({ id: z.number().int(), cron: z.string().min(9).max(64) })).mutation(async ({ input }) => {
       const post = await getCuratorPostById(input.id);
       if (!post) throw new Error("Curator post not found");
-      const job = post.scheduleCronTaskUid
-        ? await updateHeartbeatJob(post.scheduleCronTaskUid, { cron: input.cron, enable: true }, sessionToken)
-        : await createHeartbeatJob({ name: `curator-post-${input.id}`, cron: input.cron, path: "/api/scheduled/publishCuratorPost", payload: { postId: input.id }, description: `Publish Veilhouse curator post ${input.id}` }, sessionToken);
-      return updateCuratorPost(input.id, { scheduleCronTaskUid: post.scheduleCronTaskUid || (job as { taskUid: string }).taskUid, scheduledFor: job.nextExecutionAt ? new Date(job.nextExecutionAt) : null });
+      return updateCuratorPost(input.id, { scheduleCronTaskUid: input.cron, scheduledFor: nextCronDate(input.cron) });
     }),
-    unschedule: ownerProcedure.input(z.object({ id: z.number().int(), taskUid: z.string().min(1) })).mutation(async ({ input, ctx }) => {
-      const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
-      await deleteHeartbeatJob(input.taskUid, sessionToken);
+    unschedule: ownerProcedure.input(z.object({ id: z.number().int(), taskUid: z.string().min(1) })).mutation(async ({ input }) => {
       return updateCuratorPost(input.id, { scheduleCronTaskUid: null, scheduledFor: null });
     }),
-    remove: ownerProcedure.input(z.object({ id: z.number().int() })).mutation(async ({ input, ctx }) => {
-      const post = await getCuratorPostById(input.id);
-      if (post?.scheduleCronTaskUid) {
-        const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
-        await deleteHeartbeatJob(post.scheduleCronTaskUid, sessionToken);
-      }
+    remove: ownerProcedure.input(z.object({ id: z.number().int() })).mutation(async ({ input }) => {
       return deleteCuratorPost(input.id);
     }),
     dreams: ownerProcedure.query(() => listDreamSubmissions()),

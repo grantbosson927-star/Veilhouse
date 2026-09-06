@@ -1,9 +1,9 @@
 import { parse } from "cookie";
 import { jwtVerify, SignJWT } from "jose";
-import type { Request, Response } from "express";
 import type { User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
-import { getSessionCookieOptions } from "./_core/cookies";
+import { getSessionCookieOptions, type CookieRequest } from "./_core/cookies";
+import type { TrpcResponse as ContextResponse } from "./_core/context";
 import { getCuratorEmail } from "./db";
 
 export const CURATOR_ACCESS_COOKIE = "veilhouse-curator-access";
@@ -17,7 +17,7 @@ export async function isConfiguredCuratorEmail(email: string) {
   return email.trim().toLowerCase() === (await getCuratorEmail()).toLowerCase();
 }
 
-export async function grantCuratorAccess(req: Request, res: Response, user: User, email: string) {
+export async function grantCuratorAccess(req: CookieRequest, res: ContextResponse, user: User, email: string) {
   const curatorEmail = await getCuratorEmail();
   const submittedEmail = email.trim().toLowerCase();
   const isProjectOwner = Boolean(
@@ -26,6 +26,7 @@ export async function grantCuratorAccess(req: Request, res: Response, user: User
   );
   const acceptedEmails = [curatorEmail.trim().toLowerCase()];
   if (isProjectOwner && user.email) acceptedEmails.push(user.email.trim().toLowerCase());
+  if (user.openId === `curator:${curatorEmail}`) acceptedEmails.push(curatorEmail);
   if (!acceptedEmails.includes(submittedEmail)) return false;
 
   const token = await new SignJWT({ email: curatorEmail.toLowerCase() })
@@ -42,12 +43,14 @@ export async function grantCuratorAccess(req: Request, res: Response, user: User
   return true;
 }
 
-export async function hasCuratorAccess(req: Request, user: User | null) {
+export async function hasCuratorAccess(req: CookieRequest, user: User | null) {
   if (!user) return false;
   if (ENV.ownerOpenId && user.openId === ENV.ownerOpenId) return true;
   if (ENV.ownerName && user.id === 1 && user.name === ENV.ownerName) return true;
+  if (user.email && (await isConfiguredCuratorEmail(user.email))) return true;
+  if (user.openId === `curator:${await getCuratorEmail()}`) return true;
 
-  const token = parse(req.headers?.cookie ?? "")[CURATOR_ACCESS_COOKIE];
+  const token = parse(Array.isArray(req.headers?.cookie) ? req.headers.cookie.join("; ") : req.headers?.cookie ?? "")[CURATOR_ACCESS_COOKIE];
   if (!token) return false;
 
   try {
@@ -58,7 +61,7 @@ export async function hasCuratorAccess(req: Request, user: User | null) {
   }
 }
 
-export function revokeCuratorAccess(req: Request, res: Response) {
+export function revokeCuratorAccess(req: CookieRequest, res: ContextResponse) {
   res.clearCookie(CURATOR_ACCESS_COOKIE, {
     ...getSessionCookieOptions(req),
     maxAge: -1,

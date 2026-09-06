@@ -4,18 +4,18 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 
 const images = {
-  faith: "/manus-storage/faith_62552905_f758bc59.jpg",
-  machine: "/manus-storage/machine_7126fb05_361805ef.jpg",
-  liminal: "/manus-storage/liminal_2e0c1ac0_11783296.jpg",
-  body: "/manus-storage/body_034f1343_8c04d7fc.jpg",
-  weirdcore: "/manus-storage/weirdcore_2a609490_c751c3dc.jpg",
-  gargoyle: "/manus-storage/gargoyle_734fe71c_26f9172d.jpg",
-  ritual: "/manus-storage/ritual_77455d59_5f2cee8c.jpg",
-  hero: "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
-  cathedral: "/manus-storage/veilhouse-detail-faith_adc22258.jpg",
-  signal: "/manus-storage/veilhouse-detail-machine_76c2621c.jpg",
-  corridor: "/manus-storage/veilhouse-detail-liminal_1c712a5f.jpg",
-  bath: "/manus-storage/veilhouse-detail-bath_99897049.jpg",
+  faith: "/archive-assets/generated/veilhouse/faith_62552905.jpg",
+  machine: "/archive-assets/generated/veilhouse/machine_7126fb05.jpg",
+  liminal: "/archive-assets/generated/veilhouse/liminal_2e0c1ac0.jpg",
+  body: "/archive-assets/generated/veilhouse/body_034f1343.jpg",
+  weirdcore: "/archive-assets/generated/veilhouse/weirdcore_2a609490.jpg",
+  gargoyle: "/archive-assets/generated/veilhouse/gargoyle_734fe71c.jpg",
+  ritual: "/archive-assets/generated/veilhouse/ritual_77455d59.jpg",
+  hero: "/archive-assets/generated/veilhouse/hero_55e3aafa.jpg",
+  cathedral: "/archive-assets/generated/veilhouse/faith_62552905.jpg",
+  signal: "/archive-assets/generated/veilhouse/machine_7126fb05.jpg",
+  corridor: "/archive-assets/generated/veilhouse/liminal_2e0c1ac0.jpg",
+  bath: "/archive-assets/generated/veilhouse/hero_55e3aafa.jpg",
 };
 
 type PublishedPost = { id: number; slug: string; title: string; category: string; excerpt: string; story: string; imageUrl: string | null; videoUrl: string | null; publishedAt: Date | null };

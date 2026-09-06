@@ -7,40 +7,35 @@ import { archiveImages } from "./archiveImages";
 import { archiveMetadata } from "./archiveMetadata";
 
 const images = {
-  hero: "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
-  faith: "/manus-storage/faith_62552905_f758bc59.jpg",
-  machine: "/manus-storage/machine_7126fb05_361805ef.jpg",
-  liminal: "/manus-storage/liminal_2e0c1ac0_11783296.jpg",
-  body: "/manus-storage/body_034f1343_8c04d7fc.jpg",
-  weirdcore: "/manus-storage/weirdcore_2a609490_c751c3dc.jpg",
-  gargoyle: "/manus-storage/gargoyle_734fe71c_26f9172d.jpg",
-  ritual: "/manus-storage/ritual_77455d59_5f2cee8c.jpg",
-  mark: "/manus-storage/veilhouse-mark_d304fc45_cf2dffe7.png",
+  hero: "/archive-assets/generated/veilhouse/hero_55e3aafa.jpg",
+  faith: "/archive-assets/generated/veilhouse/faith_62552905.jpg",
+  machine: "/archive-assets/generated/veilhouse/machine_7126fb05.jpg",
+  liminal: "/archive-assets/generated/veilhouse/liminal_2e0c1ac0.jpg",
+  body: "/archive-assets/generated/veilhouse/body_034f1343.jpg",
+  weirdcore: "/archive-assets/generated/veilhouse/weirdcore_2a609490.jpg",
+  gargoyle: "/archive-assets/generated/veilhouse/gargoyle_734fe71c.jpg",
+  ritual: "/archive-assets/generated/veilhouse/ritual_77455d59.jpg",
+  mark: "/archive-assets/generated/veilhouse/veilhouse-mark_d304fc45.png",
 };
 
 type CuratedEntry = { slug: string; title: string; category: string; number: string; image: string; note: string };
 
 const entries: CuratedEntry[] = [
-  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/manus-storage/RH-001_6f5c3f36.jpg", note: "The cathedral roots in the marrow." },
-  { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "002", image: "/manus-storage/01_f41840ae.jpg", note: "When the signal starts watching back." },
-  { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "003", image: "/manus-storage/01_34f8af8c.jpg", note: "A corridor with no outside." },
-  { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "004", image: "/manus-storage/01_66075c21.jpg", note: "The body as a building site." },
-  { slug: "the-moon-in-the-nursery", title: "The Moon In The Nursery", category: "Weirdcore", number: "005", image: "/manus-storage/01_2fbcebda.jpg", note: "A childhood memory with teeth." },
-  { slug: "gargoyles-at-dusk", title: "Gargoyles At Dusk", category: "Grotesque architecture", number: "006", image: "/manus-storage/01_cf99f82e.jpg", note: "The city seen from above." },
-  { slug: "the-room-that-gathered", title: "The Room That Gathered", category: "Cult horror", number: "007", image: "/manus-storage/01_e069807f.jpg", note: "No ceremony without a witness." },
+  { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-001.jpg", note: "The cathedral roots in the marrow." },
+  { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "002", image: "/archive-assets/generated/veilhouse-new-specimens/TN-001.jpg", note: "When the signal starts watching back." },
+  { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "003", image: "/archive-assets/generated/veilhouse-new-specimens/LS-001.jpg", note: "A corridor with no outside." },
+  { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "004", image: "/archive-assets/generated/veilhouse-new-specimens/BH-001.jpg", note: "The body as a building site." },
+  { slug: "the-moon-in-the-nursery", title: "The Moon In The Nursery", category: "Weirdcore", number: "005", image: "/archive-assets/generated/veilhouse-new-specimens/WC-001.jpg", note: "A childhood memory with teeth." },
+  { slug: "gargoyles-at-dusk", title: "Gargoyles At Dusk", category: "Grotesque architecture", number: "006", image: "/archive-assets/generated/veilhouse-new-specimens/GA-001.jpg", note: "The city seen from above." },
+  { slug: "the-room-that-gathered", title: "The Room That Gathered", category: "Cult horror", number: "007", image: "/archive-assets/generated/veilhouse-new-specimens/CH-001.jpg", note: "No ceremony without a witness." },
 ];
 
-const religiousHorrorImages = [
-  "RH-001_6f5c3f36.jpg", "RH-002_4c283963.jpg", "RH-003_c57f954b.jpg", "RH-004_d75d4461.jpg",
-  "RH-005_9c6f62f9.jpg", "RH-006_1df312be.jpg", "RH-007_eb6e7255.jpg", "RH-008_f6710024.jpg",
-  "RH-009_6f53fa05.jpg", "RH-010_99522fb7.jpg", "RH-011_105ffea4.jpg", "RH-012_21f53dd6.jpg",
-];
 const religiousEntries: CuratedEntry[] = religiousHorrorRecords.map((record, index) => ({
   slug: record.title.toLowerCase().replaceAll(" ", "-"),
   title: record.title,
   category: "Religious horror",
   number: record.id,
-  image: `/manus-storage/${religiousHorrorImages[index]}`,
+  image: `/archive-assets/generated/veilhouse/religious-horror-rerender/RH-${String(index + 1).padStart(3, "0")}.jpg`,
   note: record.description.split(".")[0] + ".",
 }));
 

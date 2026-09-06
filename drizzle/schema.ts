@@ -1,125 +1,115 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
-export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
-  id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  openId: text("openId").notNull().unique(),
   name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  email: text("email"),
+  loginMethod: text("loginMethod"),
+  role: text("role", { enum: ["user", "admin"] }).default("user").notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+  lastSignedIn: integer("lastSignedIn", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-export const curatorPosts = mysqlTable("curator_posts", {
-  id: int("id").autoincrement().primaryKey(),
-  authorId: int("authorId").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  category: varchar("category", { length: 120 }).notNull(),
+export const curatorPosts = sqliteTable("curator_posts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  authorId: integer("authorId").notNull(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  category: text("category").notNull(),
   excerpt: text("excerpt").notNull(),
   story: text("story").notNull(),
   imageUrl: text("imageUrl"),
   videoUrl: text("videoUrl"),
   imageKey: text("imageKey"),
   videoKey: text("videoKey"),
-  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
-  scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }),
-  scheduledFor: timestamp("scheduledFor"),
-  publishedAt: timestamp("publishedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  status: text("status", { enum: ["draft", "published"] }).default("draft").notNull(),
+  scheduleCronTaskUid: text("scheduleCronTaskUid"),
+  scheduledFor: integer("scheduledFor", { mode: "timestamp" }),
+  publishedAt: integer("publishedAt", { mode: "timestamp" }),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type CuratorPost = typeof curatorPosts.$inferSelect;
 export type InsertCuratorPost = typeof curatorPosts.$inferInsert;
 
-export const curatorPostRevisions = mysqlTable("curator_post_revisions", {
-  id: int("id").autoincrement().primaryKey(),
-  postId: int("postId").notNull(),
-  authorId: int("authorId").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  category: varchar("category", { length: 120 }).notNull(),
+export const curatorPostRevisions = sqliteTable("curator_post_revisions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  postId: integer("postId").notNull(),
+  authorId: integer("authorId").notNull(),
+  title: text("title").notNull(),
+  category: text("category").notNull(),
   excerpt: text("excerpt").notNull(),
   story: text("story").notNull(),
   imageUrl: text("imageUrl"),
   videoUrl: text("videoUrl"),
-  status: mysqlEnum("status", ["draft", "published"]).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  status: text("status", { enum: ["draft", "published"] }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type CuratorPostRevision = typeof curatorPostRevisions.$inferSelect;
 export type InsertCuratorPostRevision = typeof curatorPostRevisions.$inferInsert;
 
-export const curatorSettings = mysqlTable("curator_settings", {
-  id: int("id").primaryKey(),
-  email: varchar("email", { length: 320 }).notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const curatorSettings = sqliteTable("curator_settings", {
+  id: integer("id").primaryKey(),
+  email: text("email").notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type CuratorSettings = typeof curatorSettings.$inferSelect;
 
-export const curatorSpecimens = mysqlTable("curator_specimens", {
-  slug: varchar("slug", { length: 255 }).primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  category: varchar("category", { length: 120 }).notNull(),
+export const curatorSpecimens = sqliteTable("curator_specimens", {
+  slug: text("slug").primaryKey(),
+  title: text("title").notNull(),
+  category: text("category").notNull(),
   excerpt: text("excerpt"),
   story: text("story"),
   imageUrl: text("imageUrl"),
   videoUrl: text("videoUrl"),
   imageKey: text("imageKey"),
   videoKey: text("videoKey"),
-  heroMedia: mysqlEnum("heroMedia", ["image", "video"]).default("image").notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  heroMedia: text("heroMedia", { enum: ["image", "video"] }).default("image").notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type CuratorSpecimen = typeof curatorSpecimens.$inferSelect;
 export type InsertCuratorSpecimen = typeof curatorSpecimens.$inferInsert;
 
-export const curatorSubmissions = mysqlTable("curator_submissions", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  category: varchar("category", { length: 120 }).notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
+export const curatorSubmissions = sqliteTable("curator_submissions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("imageUrl"),
   imageKey: text("imageKey"),
-  recipient: varchar("recipient", { length: 320 }).notNull().default("curator@veilhouse.monster"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  recipient: text("recipient").notNull().default("curator@veilhouse.monster"),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type CuratorSubmission = typeof curatorSubmissions.$inferSelect;
 export type InsertCuratorSubmission = typeof curatorSubmissions.$inferInsert;
 
-export const subscribers = mysqlTable("subscribers", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 320 }).notNull().unique(),
-  source: varchar("source", { length: 64 }).notNull().default("dispatch"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const subscribers = sqliteTable("subscribers", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").notNull().unique(),
+  source: text("source").notNull().default("dispatch"),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type Subscriber = typeof subscribers.$inferSelect;
 
-export const dreamSubmissions = mysqlTable("dream_submissions", {
-  id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
+export const dreamSubmissions = sqliteTable("dream_submissions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
   dreamText: text("dreamText").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 });
 
 export type DreamSubmission = typeof dreamSubmissions.$inferSelect;

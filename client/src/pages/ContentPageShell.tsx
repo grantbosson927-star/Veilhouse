@@ -1,16 +1,16 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
-const mark = "/manus-storage/veilhouse-mark_d304fc45_cf2dffe7.png";
+const mark = "/archive-assets/generated/veilhouse/veilhouse-mark_d304fc45.png";
 const images = [
-  "/manus-storage/faith_62552905_f758bc59.jpg",
-  "/manus-storage/machine_7126fb05_361805ef.jpg",
-  "/manus-storage/liminal_2e0c1ac0_11783296.jpg",
-  "/manus-storage/body_034f1343_8c04d7fc.jpg",
-  "/manus-storage/weirdcore_2a609490_c751c3dc.jpg",
-  "/manus-storage/gargoyle_734fe71c_26f9172d.jpg",
-  "/manus-storage/ritual_77455d59_5f2cee8c.jpg",
-  "/manus-storage/hero_55e3aafa_b28eacd7.jpg",
+  "/archive-assets/generated/veilhouse/faith_62552905.jpg",
+  "/archive-assets/generated/veilhouse/machine_7126fb05.jpg",
+  "/archive-assets/generated/veilhouse/liminal_2e0c1ac0.jpg",
+  "/archive-assets/generated/veilhouse/body_034f1343.jpg",
+  "/archive-assets/generated/veilhouse/weirdcore_2a609490.jpg",
+  "/archive-assets/generated/veilhouse/gargoyle_734fe71c.jpg",
+  "/archive-assets/generated/veilhouse/ritual_77455d59.jpg",
+  "/archive-assets/generated/veilhouse/hero_55e3aafa.jpg",
 ];
 
 export function PageShell({ eyebrow, title, intro, children }: { eyebrow: string; title: ReactNode; intro: string; children: ReactNode }) {
