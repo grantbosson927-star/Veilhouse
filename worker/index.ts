@@ -4,7 +4,7 @@ import { sdk } from "../server/_core/sdk";
 import { getSessionCookieOptions, serializeCookie, type CookieOptions } from "../server/_core/cookies";
 import { runWithRuntime } from "../server/runtime";
 import { publishDueCuratorPosts } from "../server/scheduled";
-import { registerOAuthCallback } from "./oauth";
+import { handleGitHubOAuth } from "../server/_core/githubOAuth";
 
 export interface WorkerEnv {
   DB: D1Database;
@@ -16,6 +16,9 @@ export interface WorkerEnv {
   OWNER_NAME?: string;
   VITE_APP_ID?: string;
   OAUTH_SERVER_URL?: string;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  GITHUB_REDIRECT_URI?: string;
 }
 
 function applyEnv(env: WorkerEnv) {
@@ -25,6 +28,9 @@ function applyEnv(env: WorkerEnv) {
   process.env.OWNER_NAME = env.OWNER_NAME || process.env.OWNER_NAME;
   process.env.VITE_APP_ID = env.VITE_APP_ID || process.env.VITE_APP_ID || "veilhouse";
   process.env.OAUTH_SERVER_URL = env.OAUTH_SERVER_URL || process.env.OAUTH_SERVER_URL;
+  process.env.GITHUB_CLIENT_ID = env.GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
+  process.env.GITHUB_CLIENT_SECRET = env.GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET;
+  process.env.GITHUB_REDIRECT_URI = env.GITHUB_REDIRECT_URI || process.env.GITHUB_REDIRECT_URI;
 }
 
 function headerMap(request: Request): Record<string, string | undefined> {
@@ -107,8 +113,8 @@ export default {
         return serveMedia(env, url.pathname.slice("/manus-storage/".length));
       }
 
-      if (url.pathname === "/api/oauth/callback") {
-        return registerOAuthCallback(request);
+      if (url.pathname === "/api/auth/github" || url.pathname === "/api/auth/github/callback") {
+        return handleGitHubOAuth(request);
       }
 
       if (url.pathname.startsWith("/api/trpc")) {

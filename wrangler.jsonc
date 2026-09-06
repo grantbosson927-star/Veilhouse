@@ -32,7 +32,8 @@
   },
   "vars": {
     "VITE_APP_ID": "veilhouse",
-    "CURATOR_EMAIL": "brilliantelay5@gmail.com"
+    "CURATOR_EMAIL": "brilliantelay5@gmail.com",
+    "GITHUB_REDIRECT_URI": "https://veilhouse.monster/api/auth/github/callback"
   },
   "routes": [
     { "pattern": "veilhouse.monster", "zone_name": "veilhouse.monster", "custom_domain": true }

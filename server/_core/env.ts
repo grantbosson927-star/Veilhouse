@@ -15,6 +15,15 @@ export const ENV = {
   get oAuthServerUrl() {
     return read("OAUTH_SERVER_URL");
   },
+  get githubClientId() {
+    return read("GITHUB_CLIENT_ID");
+  },
+  get githubClientSecret() {
+    return read("GITHUB_CLIENT_SECRET");
+  },
+  get githubRedirectUri() {
+    return read("GITHUB_REDIRECT_URI");
+  },
   get ownerOpenId() {
     return read("OWNER_OPEN_ID");
   },

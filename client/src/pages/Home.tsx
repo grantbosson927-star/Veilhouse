@@ -6,6 +6,8 @@ import { religiousHorrorRecords } from "./religiousHorror";
 import { archiveImages } from "./archiveImages";
 import { archiveMetadata } from "./archiveMetadata";
 import AccountRitual from "@/components/AccountRitual";
+import { startLogin } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const images = {
   hero: "/archive-assets/generated/veilhouse/hero_55e3aafa.jpg",
@@ -83,6 +85,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const { user } = useAuth();
   const publishedPostsQuery = trpc.curator.published.useQuery();
   const specimenOverridesQuery = trpc.curator.specimens.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
@@ -140,8 +143,7 @@ export default function Home() {
         <section className="archive" id="archive">
           <div className="archive-heading section-grid"><div className="section-kicker"><span>000</span><span>Curated specimens</span></div><div><p className="eyebrow oxblood">Recent disturbances</p><h2>Enter the<br /><em>archive.</em></h2></div><p className="archive-intro">Seven doors. No map. Each collection is a different way of losing the thread.</p><div className="archive-mark"><img src={images.mark} alt="" /><span>CATALOGUE<br />VH / 03</span></div></div>
           <div className="filters-wrap"><span className="accession-label">ACCESSION / 03</span><div className="filters" role="tablist" aria-label="Archive filters">{themes.map((theme) => <button key={theme} className={activeTheme === theme ? "filter active" : "filter"} onClick={() => setActiveTheme(theme)}>{theme}</button>)}</div><label className="search-box"><Search size={16} /><input aria-label="Search archive" placeholder="Search the archive" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
-          <div className="archive-grid">{filteredEntries.map((entry) => <a className="archive-card" href={`/specimen/${entry.slug}`} key={entry.number}><div className="card-image"><img src={entry.image} alt={entry.title} /><span className="card-number">{entry.number}</span><span className="card-arrow"><ArrowUpRight size={18} /></span></div><div className="card-body"><p>{entry.category}</p><h3>{entry.title}</h3><span>{entry.note}</span></div></a>)}</div>
-          {filteredEntries.length === 0 && <div className="empty-state">No specimen matches this disturbance.</div>}
+          {!user ? <div className="archive-gate"><p className="eyebrow oxblood">RESIDENT ACCESS</p><h3>The archive requires a witness.</h3><p>Sign in with GitHub to open the curated specimens and carry your first 1,000 Offerings into the House.</p><button className="button-outline" type="button" onClick={startLogin}>Enter the archive <ArrowUpRight size={16} /></button></div> : <><div className="archive-grid">{filteredEntries.map((entry) => <a className="archive-card" href={`/specimen/${entry.slug}`} key={entry.number}><div className="card-image"><img src={entry.image} alt={entry.title} /><span className="card-number">{entry.number}</span><span className="card-arrow"><ArrowUpRight size={18} /></span></div><div className="card-body"><p>{entry.category}</p><h3>{entry.title}</h3><span>{entry.note}</span></div></a>)}</div>{filteredEntries.length === 0 && <div className="empty-state">No specimen matches this disturbance.</div>}</>}
         </section>
 
         <section className="field-notes" id="field-notes">
