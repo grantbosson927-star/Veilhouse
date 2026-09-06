@@ -5,6 +5,7 @@ import { getSessionCookieOptions, serializeCookie, type CookieOptions } from "..
 import { runWithRuntime } from "../server/runtime";
 import { publishDueCuratorPosts } from "../server/scheduled";
 import { registerOAuthCallback } from "./oauth";
+import { handleGithubCallback, startGithubLogin } from "./githubAuth";
 
 export interface WorkerEnv {
   DB: D1Database;
@@ -16,6 +17,8 @@ export interface WorkerEnv {
   OWNER_NAME?: string;
   VITE_APP_ID?: string;
   OAUTH_SERVER_URL?: string;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
 }
 
 function applyEnv(env: WorkerEnv) {
@@ -109,6 +112,12 @@ export default {
 
       if (url.pathname === "/api/oauth/callback") {
         return registerOAuthCallback(request);
+      }
+      if (url.pathname === "/api/auth/github") {
+        return startGithubLogin(env);
+      }
+      if (url.pathname === "/api/auth/github/callback") {
+        return handleGithubCallback(request, env);
       }
 
       if (url.pathname.startsWith("/api/trpc")) {

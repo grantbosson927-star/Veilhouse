@@ -4,6 +4,7 @@ import {
   CuratorPost,
   CuratorPostRevision,
   DreamSubmission,
+  User,
   InsertCuratorPost,
   InsertCuratorPostRevision,
   InsertCuratorSpecimen,
@@ -49,7 +50,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   const values: InsertUser = { openId: user.openId };
   const updateSet: Record<string, unknown> = {};
-  const textFields = ["name", "email", "loginMethod"] as const;
+  const textFields = ["name", "email", "loginMethod", "passwordHash"] as const;
 
   for (const field of textFields) {
     const value = user[field];
@@ -84,6 +85,18 @@ export async function getUserByOpenId(openId: string) {
   if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   return result[0];
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.email, email.trim().toLowerCase())).limit(1);
+  return result[0];
+}
+
+export function toPublicUser<T extends { passwordHash?: string | null }>(user: T) {
+  const { passwordHash: _passwordHash, ...rest } = user;
+  return rest;
 }
 
 export async function listCuratorPosts() {

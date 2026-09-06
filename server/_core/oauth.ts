@@ -62,4 +62,33 @@ export function registerOAuthRoutes(app: Express) {
       res.status(500).json({ error: "OAuth callback failed" });
     }
   });
+
+  app.get("/api/auth/github", async (_req, res) => {
+    const { startGithubLogin } = await import("../../worker/githubAuth");
+    await pipeFetch(res, startGithubLogin({
+      GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+      GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    }));
+  });
+
+  app.get("/api/auth/github/callback", async (req, res) => {
+    const { handleGithubCallback } = await import("../../worker/githubAuth");
+    const origin = `${req.protocol}://${req.get("host")}`;
+    const incoming = new Request(`${origin}${req.originalUrl}`, { headers: { cookie: req.headers.cookie ?? "" } });
+    await pipeFetch(res, await handleGithubCallback(incoming, {
+      GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+      GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    }));
+  });
+}
+
+async function pipeFetch(res: Response, response: globalThis.Response) {
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "set-cookie") res.append("Set-Cookie", value);
+    else res.setHeader(key, value);
+  });
+  res.status(response.status);
+  const body = Buffer.from(await response.arrayBuffer());
+  if (body.length) res.send(body);
+  else res.end();
 }

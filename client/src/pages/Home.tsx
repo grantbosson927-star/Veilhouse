@@ -112,6 +112,7 @@ export default function Home() {
           <a href="/curator" onClick={() => setMenuOpen(false)}>Curator</a>
           <a href="/field-notes" onClick={() => setMenuOpen(false)}>Field Notes</a>
           <a href="/dreams" onClick={() => setMenuOpen(false)}>Dreams</a>
+          <a href="/enter" onClick={() => setMenuOpen(false)}>Account</a>
         </nav>
         <div className="topbar-actions">
           <a className="issue-link" href="#dispatches">Issue 03 <ArrowUpRight size={15} /></a>

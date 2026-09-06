@@ -3,23 +3,73 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
-import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen, upsertUser, getUserByOpenId } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, getUserByEmail, getUserByOpenId, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, toPublicUser, updateCuratorPost, upsertCuratorSpecimen, upsertUser } from "./db";
 import { storagePut } from "./storage";
 import { notifyOwner } from "./_core/notification";
 import { sdk } from "./_core/sdk";
 import { nextCronDate } from "./scheduleCron";
+import { hashPassword, verifyPassword } from "./password";
 import { z } from "zod";
+import type { User } from "../drizzle/schema";
+import type { TrpcContext } from "./_core/context";
 
 const mediaRef = z.string().refine((value) => value === "" || value.startsWith("/media/") || value.startsWith("/manus-storage/") || value.startsWith("/archive-assets/") || /^https?:\/\//.test(value), "Please enter a valid media URL");
+
+async function issueSession(ctx: TrpcContext, user: User, curatorEmail: string) {
+  const sessionToken = await sdk.createSessionToken(user.openId, {
+    name: user.name || user.email || "Visitor",
+    expiresInMs: ONE_YEAR_MS,
+  });
+  ctx.res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(ctx.req), maxAge: ONE_YEAR_MS });
+  if (user.email && user.email.toLowerCase() === curatorEmail) {
+    await grantCuratorAccess(ctx.req, ctx.res, user, curatorEmail);
+  }
+  return { user: toPublicUser(user) } as const;
+}
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => opts.ctx.user ? toPublicUser(opts.ctx.user) : null),
+    signup: publicProcedure.input(z.object({
+      email: z.string().email(),
+      password: z.string().min(8, "Password must be at least 8 characters."),
+      name: z.string().max(120).optional(),
+    })).mutation(async ({ input, ctx }) => {
+      const email = input.email.trim().toLowerCase();
+      if (await getUserByEmail(email)) throw new Error("An account with that email already exists.");
+      const curatorEmail = await getCuratorEmail();
+      const openId = `email:${email}`;
+      await upsertUser({
+        openId,
+        email,
+        name: input.name?.trim() || email.split("@")[0],
+        passwordHash: await hashPassword(input.password),
+        loginMethod: "email",
+        role: email === curatorEmail ? "admin" : "user",
+        lastSignedIn: new Date(),
+      });
+      const user = await getUserByEmail(email);
+      if (!user) throw new Error("Could not create the account.");
+      return issueSession(ctx, user, curatorEmail);
+    }),
+    login: publicProcedure.input(z.object({
+      email: z.string().email(),
+      password: z.string().min(1),
+    })).mutation(async ({ input, ctx }) => {
+      const email = input.email.trim().toLowerCase();
+      const user = await getUserByEmail(email);
+      if (!user || !(await verifyPassword(input.password, user.passwordHash))) {
+        throw new Error("Invalid email or password.");
+      }
+      await upsertUser({ openId: user.openId, lastSignedIn: new Date() });
+      return issueSession(ctx, user, await getCuratorEmail());
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      revokeCuratorAccess(ctx.req, ctx.res);
       return {
         success: true,
       } as const;
@@ -39,6 +89,7 @@ export const appRouter = router({
         openId,
         name: "Curator",
         email,
+        passwordHash: null,
         loginMethod: "curator-email",
         role: "admin" as const,
         createdAt: new Date(),
