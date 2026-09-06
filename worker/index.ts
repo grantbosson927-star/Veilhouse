@@ -25,7 +25,6 @@ function applyEnv(env: WorkerEnv) {
   process.env.OWNER_NAME = env.OWNER_NAME || process.env.OWNER_NAME;
   process.env.VITE_APP_ID = env.VITE_APP_ID || process.env.VITE_APP_ID || "veilhouse";
   process.env.OAUTH_SERVER_URL = env.OAUTH_SERVER_URL || process.env.OAUTH_SERVER_URL;
-  process.env.NODE_ENV = "production";
 }
 
 function headerMap(request: Request): Record<string, string | undefined> {

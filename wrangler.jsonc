@@ -6,7 +6,7 @@
   "compatibility_date": "2026-09-06",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
-  "preview_urls": true,
+  "preview_urls": false,
   "assets": {
     "directory": "./dist/public",
     "binding": "ASSETS",
@@ -33,5 +33,11 @@
   "vars": {
     "VITE_APP_ID": "veilhouse",
     "CURATOR_EMAIL": "brilliantelay5@gmail.com"
+  },
+  "routes": [
+    { "pattern": "veilhouse.monster", "zone_name": "veilhouse.monster", "custom_domain": true }
+  ],
+  "observability": {
+    "enabled": true
   }
 }
