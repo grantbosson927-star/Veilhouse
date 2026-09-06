@@ -40,6 +40,16 @@ describe("curator access", () => {
     await expect(appRouter.createCaller(accessContext).curator.access()).resolves.toBe(true);
   });
 
+  it("accepts the authenticated project owner's current account email", async () => {
+    let setCookie = "";
+    const context = createContext({ id: 1, openId: ENV.ownerOpenId, name: ENV.ownerName || "brillantelay5", email: "brillantelay5@gmail.com" });
+    context.res = {
+      cookie: (_name: string, value: string) => { setCookie = value; },
+    } as TrpcContext["res"];
+    await expect(appRouter.createCaller(context).curator.unlock({ email: "brillantelay5@gmail.com" })).resolves.toEqual({ unlocked: true });
+    expect(setCookie).toBeTruthy();
+  });
+
   it("rejects authenticated non-admin users", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(caller.curator.list()).rejects.toMatchObject<TRPCError>({ code: "FORBIDDEN" });

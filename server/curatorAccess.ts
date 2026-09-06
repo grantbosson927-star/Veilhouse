@@ -19,7 +19,14 @@ export async function isConfiguredCuratorEmail(email: string) {
 
 export async function grantCuratorAccess(req: Request, res: Response, user: User, email: string) {
   const curatorEmail = await getCuratorEmail();
-  if (email.trim().toLowerCase() !== curatorEmail.toLowerCase()) return false;
+  const submittedEmail = email.trim().toLowerCase();
+  const isProjectOwner = Boolean(
+    (ENV.ownerOpenId && user.openId === ENV.ownerOpenId) ||
+    (ENV.ownerName && user.id === 1 && user.name === ENV.ownerName),
+  );
+  const acceptedEmails = [curatorEmail.trim().toLowerCase()];
+  if (isProjectOwner && user.email) acceptedEmails.push(user.email.trim().toLowerCase());
+  if (!acceptedEmails.includes(submittedEmail)) return false;
 
   const token = await new SignJWT({ email: curatorEmail.toLowerCase() })
     .setProtectedHeader({ alg: "HS256" })
