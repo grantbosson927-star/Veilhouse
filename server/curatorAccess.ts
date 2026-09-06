@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import type { User } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { getCuratorEmail } from "./db";
 
 export const CURATOR_ACCESS_COOKIE = "veilhouse-curator-access";
 const CURATOR_ACCESS_TTL_SECONDS = 60 * 60 * 8;
@@ -12,14 +13,15 @@ function signingKey() {
   return new TextEncoder().encode(ENV.cookieSecret || "veilhouse-curator-session-key");
 }
 
-export function isConfiguredCuratorEmail(email: string) {
-  return email.trim().toLowerCase() === ENV.curatorEmail.toLowerCase();
+export async function isConfiguredCuratorEmail(email: string) {
+  return email.trim().toLowerCase() === (await getCuratorEmail()).toLowerCase();
 }
 
 export async function grantCuratorAccess(req: Request, res: Response, user: User, email: string) {
-  if (!isConfiguredCuratorEmail(email)) return false;
+  const curatorEmail = await getCuratorEmail();
+  if (email.trim().toLowerCase() !== curatorEmail.toLowerCase()) return false;
 
-  const token = await new SignJWT({ email: ENV.curatorEmail.toLowerCase() })
+  const token = await new SignJWT({ email: curatorEmail.toLowerCase() })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.openId)
     .setIssuedAt()
@@ -43,7 +45,7 @@ export async function hasCuratorAccess(req: Request, user: User | null) {
 
   try {
     const { payload } = await jwtVerify(token, signingKey(), { algorithms: ["HS256"] });
-    return payload.sub === user.openId && payload.email === ENV.curatorEmail.toLowerCase();
+    return payload.sub === user.openId && payload.email === (await getCuratorEmail()).toLowerCase();
   } catch {
     return false;
   }

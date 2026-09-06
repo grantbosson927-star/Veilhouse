@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CuratorPost, CuratorPostRevision, InsertCuratorPost, InsertCuratorPostRevision, InsertUser, curatorPostRevisions, curatorPosts, users } from "../drizzle/schema";
+import { CuratorPost, CuratorPostRevision, InsertCuratorPost, InsertCuratorPostRevision, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, subscribers, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -157,4 +157,33 @@ export async function listCuratorRevisions(postId: number) {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(curatorPostRevisions).where(eq(curatorPostRevisions.postId, postId)).orderBy(desc(curatorPostRevisions.createdAt));
+}
+
+export async function getCuratorEmail() {
+  const db = await getDb();
+  if (!db) return ENV.curatorEmail;
+  const rows = await db.select().from(curatorSettings).where(eq(curatorSettings.id, 1)).limit(1);
+  return rows[0]?.email?.trim().toLowerCase() || ENV.curatorEmail;
+}
+
+export async function setCuratorEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(curatorSettings).values({ id: 1, email: email.trim().toLowerCase() }).onDuplicateKeyUpdate({ set: { email: email.trim().toLowerCase() } });
+  return getCuratorEmail();
+}
+
+export async function addSubscriber(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const normalized = email.trim().toLowerCase();
+  await db.insert(subscribers).values({ email: normalized, source: "dispatch" }).onDuplicateKeyUpdate({ set: { email: normalized } });
+  const rows = await db.select().from(subscribers).where(eq(subscribers.email, normalized)).limit(1);
+  return rows[0];
+}
+
+export async function listSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(subscribers).orderBy(desc(subscribers.createdAt));
 }

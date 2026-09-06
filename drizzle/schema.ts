@@ -64,3 +64,20 @@ export const curatorPostRevisions = mysqlTable("curator_post_revisions", {
 
 export type CuratorPostRevision = typeof curatorPostRevisions.$inferSelect;
 export type InsertCuratorPostRevision = typeof curatorPostRevisions.$inferInsert;
+
+export const curatorSettings = mysqlTable("curator_settings", {
+  id: int("id").primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CuratorSettings = typeof curatorSettings.$inferSelect;
+
+export const subscribers = mysqlTable("subscribers", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  source: varchar("source", { length: 64 }).notNull().default("dispatch"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Subscriber = typeof subscribers.$inferSelect;

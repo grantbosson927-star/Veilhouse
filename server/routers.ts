@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { isProjectOwner, ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
 import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
-import { createCuratorPost, createCuratorRevision, deleteCuratorPost, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listPublishedCuratorPosts, updateCuratorPost } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
 
@@ -29,6 +29,9 @@ export const appRouter = router({
     access: publicProcedure.query(({ ctx }) => ctx.user ? hasCuratorAccess(ctx.req, ctx.user) : false),
     unlock: protectedProcedure.input(z.object({ email: z.string().email() })).mutation(async ({ input, ctx }) => ({ unlocked: await grantCuratorAccess(ctx.req, ctx.res, ctx.user, input.email) })),
     lock: protectedProcedure.mutation(({ ctx }) => { revokeCuratorAccess(ctx.req, ctx.res); return { success: true } as const; }),
+    settings: ownerProcedure.query(() => getCuratorEmail()),
+    updateSettings: ownerProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => setCuratorEmail(input.email)),
+    subscribers: ownerProcedure.query(() => listSubscribers()),
     published: publicProcedure.query(() => listPublishedCuratorPosts()),
     bySlug: publicProcedure.input(z.object({ slug: z.string().min(1) })).query(async ({ input }) => { const post = await getCuratorPostBySlug(input.slug); return post?.status === "published" ? post : null; }),
     list: ownerProcedure.query(() => listCuratorPosts()),
@@ -92,6 +95,9 @@ export const appRouter = router({
       }
       return deleteCuratorPost(input.id);
     }),
+  }),
+  dispatch: router({
+    subscribe: publicProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => addSubscriber(input.email)),
   }),
 });
 
