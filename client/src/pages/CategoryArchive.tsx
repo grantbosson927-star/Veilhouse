@@ -36,17 +36,13 @@ const religious: Specimen[] = religiousHorrorRecords.map((record, index) => ({
   image: religiousHorrorImages[index],
 }));
 
-const categorySpecimens: Record<string, Specimen[]> = {
-  "religious-horror": religious,
-  ...Object.fromEntries(Object.entries(archiveMetadata).map(([slug, records]) => [slug, records.map((record, index) => ({ ...record, image: archiveImages[slug]?.[index] }))])),
-};
-
 export default function CategoryArchive() {
   const [, params] = useRoute("/archive/:slug");
-  const slug = params?.slug || categories[0][0];
+  const slug = (params?.slug || categories[0][0]).replace(/\/$/, "");
   const index = Math.max(0, categories.findIndex((category) => category[0] === slug));
   const category = categories[index] || categories[0];
-  const specimens = categorySpecimens[category[0]] || [];
+  const records = category[0] === "religious-horror" ? religious : archiveMetadata[category[0]] || [];
+  const specimens: Specimen[] = records.map((record, specimenIndex) => ({ ...record, image: category[0] === "religious-horror" ? religiousHorrorImages[specimenIndex] : archiveImages[category[0]]?.[specimenIndex] }));
   const [, navigate] = useLocation();
 
   return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}>

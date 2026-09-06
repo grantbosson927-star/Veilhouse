@@ -90,7 +90,7 @@ export default function Home() {
   const publishedPostsQuery = trpc.curator.published.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
 
-  const activeEntries: CuratedEntry[] = activeTheme === "All specimens" ? entries : allCategoryEntries[activeTheme.replaceAll(" ", "-")] || [];
+  const activeEntries: CuratedEntry[] = activeTheme === "All specimens" ? entries : allCategoryEntries[activeTheme.toLowerCase().replaceAll(" ", "-")] || [];
   const filteredEntries = useMemo(() => activeEntries.filter((entry) => {
     const matchesTheme = activeTheme === "All specimens" || entry.category.toLowerCase() === activeTheme.toLowerCase();
     const matchesQuery = `${entry.title} ${entry.category}`.toLowerCase().includes(query.toLowerCase());
