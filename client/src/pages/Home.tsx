@@ -18,12 +18,12 @@ const images = {
 
 const entries = [
   { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/manus-storage/RH-001_d34455ed.jpg", note: "The cathedral roots in the marrow." },
-  { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "002", image: images.machine, note: "When the signal starts watching back." },
-  { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "003", image: images.liminal, note: "A corridor with no outside." },
-  { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "004", image: images.body, note: "The body as a building site." },
-  { slug: "the-moon-in-the-nursery", title: "The Moon In The Nursery", category: "Weirdcore", number: "005", image: images.weirdcore, note: "A childhood memory with teeth." },
-  { slug: "gargoyles-at-dusk", title: "Gargoyles At Dusk", category: "Grotesque architecture", number: "006", image: images.gargoyle, note: "The city seen from above." },
-  { slug: "the-room-that-gathered", title: "The Room That Gathered", category: "Cult horror", number: "007", image: images.ritual, note: "No ceremony without a witness." },
+  { slug: "broadcast-from-the-inside", title: "Broadcast From The Inside", category: "Technology nightmares", number: "002", image: "/manus-storage/01_f41840ae.jpg", note: "When the signal starts watching back." },
+  { slug: "ward-07-never-ends", title: "Ward 07 Never Ends", category: "Liminal spaces", number: "003", image: "/manus-storage/01_34f8af8c.jpg", note: "A corridor with no outside." },
+  { slug: "anatomy-of-a-ruin", title: "Anatomy Of A Ruin", category: "Body horror", number: "004", image: "/manus-storage/01_66075c21.jpg", note: "The body as a building site." },
+  { slug: "the-moon-in-the-nursery", title: "The Moon In The Nursery", category: "Weirdcore", number: "005", image: "/manus-storage/01_2fbcebda.jpg", note: "A childhood memory with teeth." },
+  { slug: "gargoyles-at-dusk", title: "Gargoyles At Dusk", category: "Grotesque architecture", number: "006", image: "/manus-storage/01_cf99f82e.jpg", note: "The city seen from above." },
+  { slug: "the-room-that-gathered", title: "The Room That Gathered", category: "Cult horror", number: "007", image: "/manus-storage/01_e069807f.jpg", note: "No ceremony without a witness." },
 ];
 
 const religiousHorrorImages = [

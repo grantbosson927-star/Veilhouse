@@ -10,6 +10,7 @@
 - [x] Browsable Archive landing page with seven category doors
 - [x] Individual category routes with isolated category-specific specimens
 - [x] Religious Horror expanded to RH-001 through RH-012 with full archival records
+- [x] Six remaining category doors retained with eight structured specimen placeholders each
 - [x] Manifesto page with five philosophical sections and long-form copy
 - [x] Dispatches page with deep dive, artist spotlight, announcement, and subscription framing
 - [x] Dedicated dispatch detail routes
@@ -19,25 +20,25 @@
 - [x] Shared horror-themed page loading state
 - [x] Shared image hover enlargement interaction with reduced-motion support
 
-## Completed Religious Horror visual pass
-- [x] Generated dedicated RH-001 through RH-012 image assets from supplied prompts
-- [x] Uploaded all twelve images to managed project storage
-- [x] Mapped each RH record to its own dedicated image without cross-category rotation
-- [x] Made RH-001 the homepage lead specimen for Religious Horror
-- [x] Moved 00 About the House below the archive content
-- [x] Renumbered Curated Specimens to 000
-- [x] Numbered the top specimen cards 001, 002, 003, and onward
-- [x] Made the Religious Horror homepage filter show all twelve RH cards with compact descriptions and images
-- [x] Kept full RH metadata and prompts inside the dedicated archive category route
-- [x] Preserved the seven-category archive cards so each category can show its top specimen
+## Completed archive visual pass
+- [x] Generated and uploaded eight cohesive analog-horror images for Technology Nightmares
+- [x] Generated and uploaded eight cohesive analog-horror images for Liminal Spaces
+- [x] Generated and uploaded eight cohesive analog-horror images for Body Horror
+- [x] Generated and uploaded eight cohesive analog-horror images for Weirdcore
+- [x] Generated and uploaded eight cohesive analog-horror images for Grotesque Architecture
+- [x] Generated and uploaded eight cohesive analog-horror images for Cult Horror
+- [x] Mapped every remaining category specimen to its own dedicated managed-storage image
+- [x] Updated homepage lead cards to use the generated image from each category
+- [x] Preserved existing dedicated Religious Horror images and full RH archive records
 
 ## Verification
 - [x] TypeScript check
 - [x] Vitest regression suite from prior update
 - [x] Production build
-- [x] Browser verification of 000 heading, 001–007 default cards, and all RH-001–RH-012 filtered cards
-- [x] Checkpoint saved after the numbering and curated-view update
+- [x] Browser verification of Technology Nightmares and Cult Horror eight-image routes
+- [x] Asset audit confirmed 48 generated files across the six remaining categories
+- [x] Checkpoint saved after the seven-door image expansion
 
 ## Deferred by user request
-- [x] Additional non-Religious-Horror specimen generation deferred until category content is supplied
+- [x] Re-rendering the already-complete Religious Horror set in the new shared analog-film style deferred; current dedicated RH images remain mapped and functional
 - [x] Cloudflare/R2 migration deferred until site content is finalized
