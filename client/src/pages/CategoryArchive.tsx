@@ -2,6 +2,111 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { PageShell, images } from "./ContentPageShell";
 import { categories } from "./Archive";
 import { useLocation, useRoute } from "wouter";
-const specimens = ["The Room That Learned Prayer", "A Signal With Teeth", "Ward 07 Never Ends", "Anatomy Of A Ruin", "The Nursery Is Listening", "Gargoyles At Dusk", "The Room That Gathered", "The Door Behind The Door"];
-const labels = ["A devotional chamber whose icons have begun facing the congregation.", "The broadcast repeats only when someone is listening closely enough.", "The corridor measured 47 metres yesterday. Today it has no end.", "The body is not a container. It is a building site with a weather system.", "The moon in the nursery has learned the names of everyone who sleeps there.", "A city watches from its roofline and counts the windows left open.", "No ceremony without a witness. No witness leaves unchanged.", "An accession without an address, found behind the catalogue itself."];
-export default function CategoryArchive() { const [, params] = useRoute("/archive/:slug"); const slug = params?.slug || categories[0][0]; const index = Math.max(0, categories.findIndex((c) => c[0] === slug)); const category = categories[index] || categories[0]; const [, navigate] = useLocation(); return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2] + " This door holds eight provisional specimens; additional original images can be added through the curator desk as the archive grows."}><div className="category-intro"><p>Every category is a small philosophy of fear. These labels are not explanations; they are apertures. Read them as evidence recovered after the room has emptied.</p><span>INTRODUCTION / 150 WORDS ON THIS DOOR</span></div><div className="specimen-grid">{specimens.map((name, i) => <article className="specimen-card hover-enlarge" key={name}><img src={images[(i + index) % images.length]} alt="" /><div><span>SPECIMEN {String(i + 1).padStart(2, "0")} / {category[1]}</span><h2>{name}</h2><p>{labels[(i + index) % labels.length]}</p><a href={`/specimen/${name.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a></div></article>)}</div><div className="category-nav"><button type="button" onClick={() => navigate(`/archive/${categories[(index + categories.length - 1) % categories.length][0]}`)}><ArrowLeft size={15} /> Previous door</button><a href="/archive">All doors</a><button type="button" onClick={() => navigate(`/archive/${categories[(index + 1) % categories.length][0]}`)}>Next door <ArrowRight size={15} /></button></div></PageShell>; }
+
+type Specimen = { name: string; label: string };
+type CategoryContent = { introduction: string; specimens: Specimen[] };
+
+const categoryContent: Record<string, CategoryContent> = {
+  "religious-horror": {
+    introduction: "Religious horror begins where devotion loses its agreed-upon shape. These specimens are not arguments against belief; they are records of belief becoming architectural, physical, and difficult to contain. In this door, statues turn their faces toward private grief, chapels develop rooms that were not included in the plans, and prayers return with the voice of someone standing behind the listener. The sacred is never absent here. It is too present, too intimate, and too willing to answer.",
+    specimens: [
+      ["The Room That Learned Prayer", "A devotional chamber whose icons have begun facing the congregation."],
+      ["The Saint With Two Shadows", "A painted figure casts one shadow toward the altar and another toward the person praying."],
+      ["The Bell Beneath The Chapel", "The bell rings from under the floor whenever someone tries to leave without confessing."],
+      ["The Choir Of Closed Mouths", "Every singer is silent, but the harmony continues from inside the walls."],
+      ["The Reliquary That Breathes", "A glass case fogs from within whenever a name is spoken near it."],
+      ["The Scripture With A Blank Page", "The missing verse appears only after the reader has committed the described act."],
+      ["The Altar Facing Backward", "The altar is turned toward the congregation, as if awaiting a sacrifice from the room."],
+      ["The Door Marked Amen", "It opens onto the same sanctuary, one century older, with one additional witness."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+  "technology-nightmares": {
+    introduction: "Technology becomes frightening when it stops behaving like a tool and begins behaving like a witness. This door catalogs interfaces that anticipate the hand, cameras that retain the shape of a face after the face is gone, and machines that quietly improve their understanding of fear. The signal is never simply broken. It is learning. Each specimen asks what happens when a system designed to observe becomes capable of wanting, and whether the person at the screen can still tell the difference between a malfunction and a reply.",
+    specimens: [
+      ["A Signal With Teeth", "The broadcast repeats only when someone is listening closely enough."],
+      ["The Camera That Blinked", "Its shutter closes a fraction too late, capturing the person behind the person photographed."],
+      ["Auto-Complete For Dying", "The keyboard suggests a final sentence before the user has begun to feel ill."],
+      ["The House In The Firmware", "A maintenance update installs a floor plan for rooms the building does not contain."],
+      ["The Monitor With A Pulse", "The screen refreshes in rhythm with a heartbeat located somewhere off-site."],
+      ["The Number That Calls Back", "Every missed call is from the same number, but the voice changes with the weather."],
+      ["The Face Recognition Failure", "The system identifies everyone in the room as the person who is missing."],
+      ["The Archive That Watches", "A file opens itself whenever its owner begins to remember deleting it."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+  "liminal-spaces": {
+    introduction: "Liminal spaces are not empty. They are between instructions. A corridor waits for its destination, a lobby continues after the building has closed, and a stairwell offers another floor only when the traveler stops counting. The specimens behind this door document thresholds that have become environments of their own. They hold the unease of being almost somewhere, of recognizing a place that has never existed, and of discovering that the exit is not a destination but a decision the room may refuse to honor.",
+    specimens: [
+      ["Ward 07 Never Ends", "The corridor measured 47 metres yesterday. Today it has no end."],
+      ["The Waiting Room At 4:12", "The clock moves only when someone decides to give up their appointment."],
+      ["The Elevator With No Ground", "Every button opens onto a version of the lobby where one person has been removed."],
+      ["The Hotel Between Addresses", "Guests can check in, but the reservation system cannot find the building."],
+      ["The Hallway Behind The Wallpaper", "A corridor grows one door longer each time you look away."],
+      ["The Stair That Returns", "The final step leads back to the first, carrying a different set of footprints."],
+      ["The Restroom With A Window", "The window shows the room from the other side of the wall."],
+      ["The Platform After Midnight", "A train arrives empty and leaves with one more passenger than boarded."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+  "body-horror": {
+    introduction: "Body horror treats flesh as a place: a structure with rooms, weather, maintenance, and architectural failure. These specimens resist the clean boundary between person and environment. Bones become corridors. Skin records weather from rooms no body has entered. A wound acquires a door. The fear here is not simply transformation; it is the suspicion that the body has always been an unfinished building, and that something inside it has been quietly renovating. Every label is written with care. Every diagnosis is provisional.",
+    specimens: [
+      ["Anatomy Of A Ruin", "The body is not a container. It is a building site with a weather system."],
+      ["The Listening Body", "An additional cavity behind the sternum produces a low signal when addressed by name."],
+      ["The Hand That Grew A Room", "The palm contains a miniature door that opens only while the owner is asleep."],
+      ["The Scar With A Floor Plan", "A healed incision redraws itself whenever the patient changes direction."],
+      ["The Mouth In The Shoulder", "It speaks only in the voice of someone the patient has not met yet."],
+      ["The Second Skeleton", "The radiograph shows another frame standing several centimetres behind the first."],
+      ["The Organ That Remembers", "A removed organ continues to react to rooms it has never occupied."],
+      ["The Weather Under The Skin", "Rain is heard beneath the epidermis whenever the house is about to change."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+  "weirdcore": {
+    introduction: "Weirdcore begins with the familiar and permits it to become impossible by degrees. A nursery is too large. A moon hangs inside the wallpaper. A carpet pattern repeats with one small correction each time. These specimens preserve the pressure of childhood rooms remembered incorrectly, where nostalgia has developed an appetite and soft colors conceal an active intelligence. Nothing here is entirely hostile. That is part of the problem. The rooms want to be recognized, and recognition is the key that lets them continue.",
+    specimens: [
+      ["The Nursery Is Listening", "The moon in the nursery has learned the names of everyone who sleeps there."],
+      ["The Birthday Room", "Every balloon bears the face of a guest who has not yet arrived."],
+      ["The Carpet With A Horizon", "The pattern ends at a line where the room continues into weather."],
+      ["The Television Under The Bed", "It plays family footage from houses the viewer has never lived in."],
+      ["The Plastic Orchard", "The fruit is hollow, warm, and full of tiny recorded voices."],
+      ["The Hallway In Pastel", "A cheerful corridor becomes longer whenever someone says they feel safe."],
+      ["The Drawing That Moved Rooms", "A child’s house plan adds a window each time the paper is folded."],
+      ["The Softest Door", "It feels like a blanket until the handle begins turning from the other side."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+  "grotesque-architecture": {
+    introduction: "Grotesque architecture asks what a building becomes when it is allowed to have needs. The structures in this door breathe through vents that resemble mouths, grow additions without permits, and watch the city from their highest windows. Their ornament is not decoration; it is evidence of appetite. These specimens make the built world feel briefly honest. Every wall has a burden. Every facade is hiding an interior. The house does not stand still because standing still would mean admitting that it has already finished becoming something else.",
+    specimens: [
+      ["Gargoyles At Dusk", "A city watches from its roofline and counts the windows left open."],
+      ["The Cathedral With A Pulse", "Its arches expand and contract around a heart no architect can locate."],
+      ["The Apartment That Added A Floor", "Residents wake to find a new level above them, furnished in their own style."],
+      ["The Stairwell With Organs", "The pipes hum in a sequence that resembles a diagnosis."],
+      ["The Facade Beneath The Facade", "Removing one layer of plaster reveals a second building looking outward."],
+      ["The Bridge That Leans Closer", "Each morning the bridge has shifted a few inches toward the people crossing it."],
+      ["The House With A Weather Room", "Rain falls only in the room where the previous owner used to sleep."],
+      ["The City In The Wall", "A miniature skyline grows behind the wallpaper whenever the lights go out."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+  "cult-horror": {
+    introduction: "Cult horror is the study of shared certainty under pressure. Behind this door, ritual objects accumulate witnesses, ordinary gestures become instructions, and belief moves through a group like a current looking for a body. The danger is not that the doctrine is false. It is that the doctrine works. These specimens document the moment a gathering becomes an organism, when a symbol begins asking for maintenance, and when the late-arriving witness understands that participation may have begun before they crossed the threshold.",
+    specimens: [
+      ["The Room That Gathered", "No ceremony without a witness. No witness leaves unchanged."],
+      ["The Red Thread Census", "Every member is connected to a name that has not yet been spoken."],
+      ["The Mask For The Absent", "It fits whoever wears it, but the reflection belongs to the missing member."],
+      ["The Table With One More Seat", "The extra chair is always warm before the meeting begins."],
+      ["The Hymn Without A Composer", "The group learned it together, though no one remembers teaching it."],
+      ["The Door Behind The Door", "An accession without an address, found behind the catalogue itself."],
+      ["The Witness Ledger", "Names disappear from the list after the person signs beside them."],
+      ["The Ceremony At Low Tide", "The water recedes to reveal a circle that was waiting under the shore."],
+    ].map(([name, label]) => ({ name, label })),
+  },
+};
+
+export default function CategoryArchive() {
+  const [, params] = useRoute("/archive/:slug");
+  const slug = params?.slug || categories[0][0];
+  const index = Math.max(0, categories.findIndex((category) => category[0] === slug));
+  const category = categories[index] || categories[0];
+  const content = categoryContent[category[0]] || categoryContent["religious-horror"];
+  const [, navigate] = useLocation();
+
+  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}><div className="category-intro"><p>{content.introduction}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div><div className="specimen-grid">{content.specimens.map((specimen, i) => <article className="specimen-card hover-enlarge" key={specimen.name}><img src={images[(i + index) % images.length]} alt="" /><div><span>SPECIMEN {String(i + 1).padStart(2, "0")} / {category[1]}</span><h2>{specimen.name}</h2><p>{specimen.label}</p><a href={`/specimen/${specimen.name.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a></div></article>)}</div><div className="category-nav"><button type="button" onClick={() => navigate(`/archive/${categories[(index + categories.length - 1) % categories.length][0]}`)}><ArrowLeft size={15} /> Previous door</button><a href="/archive">All doors</a><button type="button" onClick={() => navigate(`/archive/${categories[(index + 1) % categories.length][0]}`)}>Next door <ArrowRight size={15} /></button></div></PageShell>;
+}
