@@ -79,3 +79,14 @@
 .document-hero { display:block; width:100%; max-height:560px; object-fit:cover; margin-bottom:45px; }
 .document-detail > p { max-width:720px; color:#c9c0b5; white-space:pre-line; font:26px/1.35 "Cormorant Garamond",serif; }
 @media (max-width:800px) { .dream-recent > div { grid-template-columns:1fr; } }
+
+.specimen-record { margin-top:16px; width:100%; border-top:1px solid rgba(189,84,69,.35); padding-top:12px; }
+.specimen-record summary { color:#d16a5a; cursor:pointer; list-style:none; font-size:9px; letter-spacing:.12em; text-transform:uppercase; }
+.specimen-record summary::-webkit-details-marker { display:none; }
+.specimen-record summary::before { content:"+ "; }
+.specimen-record[open] summary::before { content:"− "; }
+.specimen-record dl { margin:18px 0; display:grid; gap:12px; }
+.specimen-record dl div { display:grid; grid-template-columns:92px 1fr; gap:8px; }
+.specimen-record dt, .specimen-record strong { color:#bd5445; font-size:8px; letter-spacing:.12em; text-transform:uppercase; }
+.specimen-record dd { margin:0; color:#c9c0b5; font-size:11px; line-height:1.45; }
+.specimen-record > p { color:#a59c90; font-size:11px; line-height:1.55; }

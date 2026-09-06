@@ -1,0 +1,133 @@
+export type ReligiousRecord = {
+  id: string;
+  title: string;
+  medium: string;
+  location: string;
+  accessionDate: string;
+  description: string;
+  curatorNote: string;
+  prompt: string;
+};
+
+export const religiousHorrorRecords: ReligiousRecord[] = [
+  {
+    id: "RH-001",
+    title: "Sister Catherine's Ribcage",
+    medium: "Photographic documentation, 70mm chest radiograph series",
+    location: "Convent of the Perpetual Dawn, rural Poland",
+    accessionDate: "March 14, 2024",
+    description: "On Tuesday, March 3rd, 1987, Sister Mary Catherine reported hearing the stone foundations breathe beneath her kneeler. By Friday, her chest cavity had begun to mirror its rhythm. Standard clinical radiographs show eleven ribs. The specimen’s archived post-mortem imaging shows thirteen, calcified into impossibly sharp, gothic arcs. The autopsy—conducted three weeks after her death from systemic bone calcification—revealed that her thoracic cavity had restructured itself into a precise 1:100 scale model of the convent’s central nave. Each rib formed a ribbed groin vault; her sternum had fractured and flattened to form an altar table complete with micro-incisions resembling consecration crosses. She was found frozen in silent adoration in her cell. Her final journal entry read: ‘The stone does not sit upon the earth; it roots in us. The bells are ringing inside my marrow.’",
+    curatorNote: "Convent records confirm the building was demolished in 1992. However, architectural blueprints recovered from municipal archives show the convent was built over a subterranean hollow measuring 40 meters deep. Sister Catherine’s chest cavity was structurally larger than the physical building itself.",
+    prompt: "A dark, grainy vintage medical X-ray of a human torso, surreal dark visual horror. The ribcage is unnaturally reshaped into the intricate Gothic vaulted arches and pillars of a cathedral nave. Fine anatomical detail, bone fused with stone textures, ominous macro photography, cold clinical lighting, eerie atmospheric glow, muted black and white tones, 1980s medical archive style, highly detailed photorealistic render.",
+  },
+  {
+    id: "RH-002",
+    title: "The Altar That Digests",
+    medium: "Architectural photography, high-resolution thermal imaging",
+    location: "Abandoned chapel, outskirts of Marseille, France",
+    accessionDate: "January 22, 2024",
+    description: "The altar slab is warm to the touch. It maintains a constant core temperature of 37°C regardless of ambient freeze. Radiometric and thermal imaging reveal an intricate, high-pressure vascular system beneath the chiseled granite—a complex lattice of biological capillaries, muscular arteries, and pulsing veins feeding directly toward a central recess where the monstrance once stood. Pilgrims who knelt at the altar rail between 1978 and 1984 experienced severe localized paresthesia and temporal distortion. Seven devotees failed to stand after prayer; foreheads and palms fused directly into the stone via dense, connective fibrous root systems. Forensic teams noted their facial expressions remained locked in rapturous, wide-eyed bliss as their circulatory systems were slowly siphoned into the masonry.",
+    curatorNote: "Our research team attempted a 2mm diamond-core drill extraction. The bit penetrated three centimeters before striking a pressurized fluid layer. The drill bit retreated coated in dense, iron-rich fluid that tested positive for human blood with an unidentified non-terrestrial protein structure. The fluid sample digested its glass containment vial within six hours.",
+    prompt: "A dark thermal image and close-up photograph of an ancient stone altar inside a derelict chapel. Beneath the cracked gray marble surface, glowing biological veins and pulsating red organic tissue are visible under the stone skin. Surreal cosmic horror, subtle eerie backlight, moody shadows, cinematic lighting, hyper-realistic texture of decaying stone mixed with raw wet flesh, uncanny horror, cinematic 8k.",
+  },
+  {
+    id: "RH-003",
+    title: "Icon of the Weeping Saint (Variant Delta)",
+    medium: "Egg tempera and gold leaf on poplar wood, 16th century",
+    location: "Private collection, provenance suppressed",
+    accessionDate: "November 8, 2023",
+    description: "An uncanonical depiction of an unknown martyr whose face is entirely smooth save for two hollow sockets. The icon does not weep tears or holy oil. It secretes an amber, high-viscosity fluid composed of aromatic resins, human plasma, and an untraceable element emitting low-level gamma radiation. Discovered in 2023 sealed inside a hollow brick pillar of a collapsed Byzantine monastery. While carbon dating confirms the poplar wood substrate dates to 1520, the paint layers show no atmospheric oxidation or age-cracking. The amber fluid continuously bubbles from the eye sockets, trickling down the gesso panel in rhythmic, deliberate patterns that spell out archaic liturgical ciphers.",
+    curatorNote: "All three previous private owners who stored the icon reported auditory hallucinations—specifically, the sound of rhythmic, wet breathing echoing from within solid interior walls. The icon is maintained inside a lead-lined Faraday vault. Night-vision surveillance footage captured at 03:14 AM revealed the icon's painted mouth opening inward, revealing rows of small, human molar teeth. No audio was detected, but two vault monitoring technicians suffered localized retinal hemorrhages during the event.",
+    prompt: "An ancient 16th-century religious icon painting on cracked dark wood, featuring a faceless saint with golden halo. Thick, glowing golden-amber liquid oozes continuously from dark eye sockets down the weathered paint. Surreal dark surrealism, creepy atmospheric lighting, ultra-detailed oil paint textures, aged gold leaf flaking away, uncanny horror art, cinematic, hyper-detailed render.",
+  },
+  {
+    id: "RH-004",
+    title: "The Confessional That Remembers",
+    medium: "Digital photography, multi-track audio recordings",
+    location: "St. Jude’s Deconsecrated Church, Detroit, Michigan",
+    accessionDate: "August 3, 2024",
+    description: "A hand-carved oak confessional booth manufactured in 1902. The division screen separating priest and penitent is not iron mesh, but a thin, semitransparent membrane of calcified epidermal tissue that stretches and twitches in response to vocal vibrations. When a subject sits in the penitent’s stall, a dense silhouette forms behind the membrane. Audio transducers placed inside record two distinct vocal frequencies during confession. The secondary voice speaks in a low, resonant murmur, overriding the speaker to reveal unarticulated transgressions, forgotten childhood cruelties, and buried desires with absolute accuracy. Subjects who remain inside the booth longer than seven minutes report feeling their personal memories being pulled physically through their throats.",
+    curatorNote: "Analysis of 300+ hours of digital audio reveals that the secondary entity’s vocal profile alters its acoustic resonant frequency to match the voice of the penitent’s deceased relatives. We have permanently sealed the booth door after audio equipment recorded a voice identifying individual VEILHOUSE staff members by their home addresses.",
+    prompt: "Inside a dark, dusty, antique wooden confessional booth. The partition screen is replaced by a translucent, veined organic skin membrane, glowing faintly from behind. A terrifying shadowy silhouette presses gently against the membrane from the priest's side. Moody low-key cinematic lighting, heavy shadows, surreal psychological horror, high detailed wood grain and biological textures, eerie photorealism.",
+  },
+  {
+    id: "RH-005",
+    title: "Procession of the Hollow Saints",
+    medium: "35mm silver halide photographic prints (12 frame sequence)",
+    location: "Recovered roll of undeveloped film, provenance unknown",
+    accessionDate: "February 14, 2024",
+    description: "A series of twelve black-and-white photographs documenting an unscheduled religious procession along a barren coastline. The figures wear heavy, waterlogged liturgical vestments and conical iron hoods. Across the sequence of twelve exposures, the physical proportions of the marchers degrade dramatically. Frame 01 shows standard human shapes; by Frame 12, the figures stand over four meters tall, their limbs distended into jointless, needle-like appendages. Their shadows do not align with the position of the sun, casting long, dark tendrils backward toward the camera lens. The physical film negative showed signs of biological contamination, coated in a layer of dried saline sludge containing calcified deep-sea microorganisms.",
+    curatorNote: "The physical prints are stored in dark storage. Multiple lab archivists report that the position of the procession within the photographs changes when unobserved. A count conducted on May 1st revealed 14 figures; on June 12th, 11 figures. One figure now appears significantly closer to the edge of the photographic frame.",
+    prompt: "A grainy, high-contrast vintage black-and-white photograph of tall, eerie hooded cultists walking in a solemn procession along a misty desolate beach. The figures have unnaturally elongated, distorted limbs and loom absurdly tall against the sky. Vintage 1970s horror photography style, fine silver halide film grain, surreal folk horror aesthetic, disturbing shadows, hyper-realistic film texture.",
+  },
+  {
+    id: "RH-006",
+    title: "The Baptismal Font That Fills Itself",
+    medium: "Architectural documentation, fluid mass spectrometry",
+    location: "St. Jude-in-the-Fens, ruined abbey, Scottish Highlands",
+    accessionDate: "May 19, 2024",
+    description: "An 800-year-old octagonal baptismal basin carved from solid basalt. Despite the surrounding abbey lacking a roof for nearly a century, the basin never collects rainwater. Every night at midnight, the basin fills from beneath with exactly 4.2 liters of a clear, highly viscous fluid. Spectrographic testing indicates the liquid is structurally similar to human amniotic fluid, but enriched with heavy metals, trace amounts of ancient seawater, and complex cellular structures that lack standard double-helix DNA. Historical parish records from 1680 to 1705 note that infants baptized in the font exhibited unusual anatomical anomalies, including seamless skin lacking pore structures, soundless crying, and an aversion to natural light.",
+    curatorNote: "During a routine fluid sample extraction, electrical conductivity sensors touched the surface of the liquid. The fluid instantly contracted into a dense mass at the center of the font, producing a localized acoustic pulse measuring 110 decibels resembling a human infant crying underwater. Sampling has been suspended.",
+    prompt: "An ancient, weathered black basalt baptismal font inside a roofless medieval ruin lit by pale moonlight. The stone basin is filled with thick, luminescent, shimmering clear fluid that ripples on its own. Surreal dark horror, cold atmospheric fog, moonlight rays breaking through ruin archways, ultra-realistic stone decay and fluid physics, creepy cinematic atmosphere.",
+  },
+  {
+    id: "RH-007",
+    title: "Reliquary of the Unnamed Martyr",
+    medium: "X-ray computed tomography, sound level monitoring",
+    location: "Vienna Imperial Crypt storage (Decommissioned 2023)",
+    accessionDate: "October 31, 2023",
+    description: "An ornate 14th-century reliquary box made of filigree gold, rock crystal, and boiled leather. Inside sits a heavily calcified bone labeled ‘Reliquia S. Incogniti’. High-resolution CT scans show that the object within is not a single human bone, but a tightly fused cluster of non-human skeletal structures—fused avian sternums, inverted digits, and tiny mandibles aligned in a geometric spiral. The contents slowly shift position inside the sealed crystal enclosure, rearranging themselves every 24 hours into complex mathematical fractals. When isolated in an silent environment, the reliquary acts as an acoustic transducer, producing a faint, multi-layered rasping noise that matches human vocal sibilance.",
+    curatorNote: "The reliquary has been housed in an anechoic chamber. Audio processing reveals the acoustic output consists of names, dates of birth, and exact coordinates read aloud in an archaic dialect of Vulgar Latin. On August 14th, the sound system recorded the names of three VEILHOUSE night security officers. Two resigned the following morning.",
+    prompt: "An ornate 14th-century Gothic gold and glass reliquary box resting on black velvet in a dark room. Inside the clear glass chamber is a horrifying, alien-like cluster of fused, small human and animal bones arranged in an unnatural geometric spiral. Macro photography, museum display lighting, hyper-detailed gold filigree, surreal dark fantasy horror, photorealistic texture.",
+  },
+  {
+    id: "RH-008",
+    title: "The Stigmata That Spreads",
+    medium: "Clinical photography, time-lapse dermatological mapping",
+    location: "Undisclosed medical facility, Krakow, Poland",
+    accessionDate: "July 7, 2024",
+    description: "Dermatological case file of Subject M.B., age 34. On April 29th, 2024, the subject developed sudden, painless ulcerations on both palms, feet, and right flank—classic presentation of religious stigmata. However, the lesions did not bleed blood; they exuded a thin mortar-like lime slurry. Over a ten-week period, the wounds multiplied across the subject's skin surface. Rather than random lesions, the wounds form precise geometric cuts, recessed grooves, and rectangular perforations. Mapping the lesions onto a 3D digital model reveals that the wounds form an exact floor plan of a 12th-century Cistercian monastery destroyed during the Baltic Crusades. The subject reports no physical distress, stating they can hear mass being celebrated deep within their own abdominal cavity.",
+    curatorNote: "Full-body MRI scans reveal that beneath the skin, the subject's internal organs are slowly migrating to accommodate the structural lines of the dermal floor plan. The liver has flattened into a courtyard wall; the lungs have fused along the central median to form a vaulted ceiling. The subject remains fully conscious and clinically stable.",
+    prompt: "A clinical, cold, lighting close-up photograph of skin featuring precise, geometric, fine cuts and linear lesions arranged in the complex blueprint pattern of a cathedral floor plan. The wounds glow faint pale white at the edges. Creepy medical horror, dark surrealism, high anatomical detail, photorealistic skin texture, muted desaturated color palette.",
+  },
+  {
+    id: "RH-009",
+    title: "Choir of the Breathless",
+    medium: "24-track audio recording, thermal laser vibrometry",
+    location: "St. Nicholas Cathedral, abandoned, Prague",
+    accessionDate: "December 13, 2023",
+    description: "At 03:00 AM daily, the choir loft of the empty cathedral produces complex, polyphonic choral music lasting precisely 14 minutes and 22 seconds. Acoustic sensors placed in the empty loft detect twelve distinct vocal tracks singing a complex liturgical chant. The composition uses microtonal intervals that induce severe inner-ear disruption and nausea in human listeners. Laser vibrometry shows that the stone walls, wooden pews, and lead window frames are vibrating directly to produce the sound—the cathedral building itself is acting as a massive vocal apparatus. The lyrics consist of an unrecorded pre-Christian dialect. Translated fragments include lines such as: ‘Open the stone mouth / We are the breath that fills the hall / Offer your rib to the vault.’",
+    curatorNote: "We placed six highly sensitive condenser microphones in the empty loft. While the audio recorded clearly, physical air movement sensors in the room registered absolute zero air displacement during the entire performance. The sound exists without air.",
+    prompt: "Looking up at an enormous, dusty, abandoned Gothic cathedral choir loft at night. Soft eerie light pierces through broken stained glass windows. The loft is empty, but dusty light beam patterns suggest faint, ghostly, invisible figures standing at the wooden railings. Atmospheric dark architecture photography, cinematic, heavy shadows, surreal horror, ultra-detailed 8k.",
+  },
+  {
+    id: "RH-010",
+    title: "The Rosary That Counts Itself",
+    medium: "High-speed infrared video, forensic analysis",
+    location: "Private residence, Dublin, Ireland",
+    accessionDate: "April 1, 2024",
+    description: "An antique rosary constructed from carved ebony beads and tarnished silver wire. Standard Catholic rosaries consist of 59 beads. Specimen RH-010 features a variable bead count: visual inspection under standard conditions reveals 59 beads, but physical touch reveals an elusive 60th bead situated between the crucifix and the first decade. The original owner was found dead of sudden cardiac arrest in her home. In her left hand, she had carved the number ‘60’ into her forearm 847 times with a sewing needle. High-speed infrared cameras record the wooden beads sliding slowly along the wire loops on their own, making a rhythmic clack-clack sound at three-second intervals. Each full cycle counts 59 beads—until 03:33 AM, when the wire visibly elongates to accommodate an extra, glistening bone bead that emerges from inside the silver crucifix.",
+    curatorNote: "The rosary was placed inside a vacuum-sealed plexiglass case for observation. On night three, the counting sequence completed to 60. The following morning, the lead researcher assigned to the file was found unresponsive in her home. She had obsessively written the number ‘60’ across her apartment walls in dry ink. Specimen RH-010 has been transferred to cold storage indefinitely.",
+    prompt: "A close-up photograph of an ancient, dark wooden rosary lying on a dark stone surface. Among the smooth black ebony beads, one single bead is made of pale, raw human bone with miniature carved symbols. Creepy lighting, moody macro photography, dark surrealism, photorealistic wood and bone textures, fine silver wire detail, highly detailed.",
+  },
+  {
+    id: "RH-011",
+    title: "The Pilgrimage That Never Ends",
+    medium: "GPS tracking telemetry, satellite imaging, audio logs",
+    location: "Camino de Santiago (Northern Route, Spain)",
+    accessionDate: "September 9, 2024",
+    description: "On June 12th, 2024, hiker L.F. began the standard 800km Camino route. GPS logs show that on day 14, after passing through an isolated mountain pass, her transponder diverted onto a non-existent geographical vector. For 90 days, satellite tracking registered her walking continuously at a steady pace of 4.2 km/h without stopping for rest or sleep. Satellite photography of her coordinates revealed only empty pine forests and bare rocky slopes, yet her daily audio transmissions described walking through an endless, subterranean stone cloister decorated with infinite rows of weep-holes and gargoyles. Her final audio transmission: ‘The trail isn't leading to the cathedral. The trail was built inside its intestinal wall. I haven't seen the sky in two months, but the stone arches keep opening ahead of me. The pavement is soft under my boots.’",
+    curatorNote: "A recovery team dispatched to her last known satellite coordinates found her standing motionless in a field. Her hiking boots were entirely worn away, exposing feet that had transformed into smooth, calcified granite blocks seamlessly rooted into the bedrock below. She remains conscious, unable to speak, but her heart rate mirrors the seismic tremors of the surrounding region.",
+    prompt: "A surreal, terrifying landscape photo of a dusty, ancient stone pilgrimage path that bends and disappears into the yawning, monstrous stone mouth of a colossal Gothic cathedral buried partially underground. Pale desolate sky, creepy desolate vibe, surreal horror, photorealistic landscape, dramatic moody lighting, ultra-detailed textures.",
+  },
+  {
+    id: "RH-012",
+    title: "Communion of the Flesh",
+    medium: "High-speed photography, biological tissue analysis",
+    location: "Subterranean chapel, Mexico City",
+    accessionDate: "June 6, 2024",
+    description: "Evidence recovered from an underground sect practicing a modified Tridentine rite. The liturgical elements used during communion are biological anomalous tissues: the sacramental host is a thin, translucent disc of living muscular tissue that twitches when exposed to air; the communion wine is a dark, warm cellular fluid containing high concentrations of divine-coded genetic sequences. Worshippers who partook in the sacrament experienced rapid, permanent anatomical mutations. Post-communion medical scans show that the participants' internal organs undergo structural transformation, rearranging themselves to form biological facsimiles of religious architecture inside the abdominal cavity. Rather than expressing distress, affected individuals exhibit profound serene tranquility, reporting that they feel ‘anchored to the foundation of the world.’",
+    curatorNote: "We monitored three congregants brought in for observation. Abdominal ultrasound imaging confirms their digestive tracts have merged into a unified hollow chamber lined with tiny, calcified structural arches and miniature stone-like pillars. They no longer require organic food, absorbing moisture directly through airborne humidity.",
+    prompt: "A dark, atmospheric close-up photo of a priest's pale hands holding a golden communion chalice and a wafer. The host wafer is made of pale, glistening, veined organic tissue with a faint pulse. Dark moody candlelight, dramatic shadows, surreal biological horror, extreme realism, fine details on gold chalice and uncanny flesh wafer.",
+  },
+];

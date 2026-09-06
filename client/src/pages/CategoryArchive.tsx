@@ -2,23 +2,15 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { PageShell, images } from "./ContentPageShell";
 import { categories } from "./Archive";
 import { useLocation, useRoute } from "wouter";
+import { religiousHorrorRecords } from "./religiousHorror";
 
-type Specimen = { name: string; label: string };
+type Specimen = { name: string; label: string; id?: string; medium?: string; location?: string; accessionDate?: string; description?: string; curatorNote?: string; prompt?: string };
 type CategoryContent = { introduction: string; specimens: Specimen[] };
 
 const categoryContent: Record<string, CategoryContent> = {
   "religious-horror": {
-    introduction: "Religious horror begins where devotion loses its agreed-upon shape. These specimens are not arguments against belief; they are records of belief becoming architectural, physical, and difficult to contain. In this door, statues turn their faces toward private grief, chapels develop rooms that were not included in the plans, and prayers return with the voice of someone standing behind the listener. The sacred is never absent here. It is too present, too intimate, and too willing to answer.",
-    specimens: [
-      ["The Room That Learned Prayer", "A devotional chamber whose icons have begun facing the congregation."],
-      ["The Saint With Two Shadows", "A painted figure casts one shadow toward the altar and another toward the person praying."],
-      ["The Bell Beneath The Chapel", "The bell rings from under the floor whenever someone tries to leave without confessing."],
-      ["The Choir Of Closed Mouths", "Every singer is silent, but the harmony continues from inside the walls."],
-      ["The Reliquary That Breathes", "A glass case fogs from within whenever a name is spoken near it."],
-      ["The Scripture With A Blank Page", "The missing verse appears only after the reader has committed the described act."],
-      ["The Altar Facing Backward", "The altar is turned toward the congregation, as if awaiting a sacrifice from the room."],
-      ["The Door Marked Amen", "It opens onto the same sanctuary, one century older, with one additional witness."],
-    ].map(([name, label]) => ({ name, label })),
+    introduction: "When devotion corrupts the flesh, when stone learns to bleed, when prayer leaves scars. This vault contains specimens of faith that has turned inward—architecture that digests its congregation, saints whose bones have learned to rearrange themselves, and icons that weep something far darker than tears. Here, the sacred does not heal. It transforms. It consumes. It watches back. These specimens document the exact moment when belief becomes a living, parasitic entity—and that entity is hungry. Each record is a tear in the fabric of devotion, a threshold where the veil between worship and being worshipped has grown thin enough to rip. Do not look for salvation here. The cathedral has a pulse, and it is learning your rhythm.",
+    specimens: religiousHorrorRecords.map((record) => ({ name: record.title, label: record.description, ...record })),
   },
   "technology-nightmares": {
     introduction: "Technology becomes frightening when it stops behaving like a tool and begins behaving like a witness. This door catalogs interfaces that anticipate the hand, cameras that retain the shape of a face after the face is gone, and machines that quietly improve their understanding of fear. The signal is never simply broken. It is learning. Each specimen asks what happens when a system designed to observe becomes capable of wanting, and whether the person at the screen can still tell the difference between a malfunction and a reply.",
@@ -108,5 +100,5 @@ export default function CategoryArchive() {
   const content = categoryContent[category[0]] || categoryContent["religious-horror"];
   const [, navigate] = useLocation();
 
-  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}><div className="category-intro"><p>{content.introduction}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div><div className="specimen-grid">{content.specimens.map((specimen, i) => <article className="specimen-card hover-enlarge" key={specimen.name}><img src={images[(i + index) % images.length]} alt="" /><div><span>SPECIMEN {String(i + 1).padStart(2, "0")} / {category[1]}</span><h2>{specimen.name}</h2><p>{specimen.label}</p><a href={`/specimen/${specimen.name.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a></div></article>)}</div><div className="category-nav"><button type="button" onClick={() => navigate(`/archive/${categories[(index + categories.length - 1) % categories.length][0]}`)}><ArrowLeft size={15} /> Previous door</button><a href="/archive">All doors</a><button type="button" onClick={() => navigate(`/archive/${categories[(index + 1) % categories.length][0]}`)}>Next door <ArrowRight size={15} /></button></div></PageShell>;
+  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}><div className="category-intro"><p>{content.introduction}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div><div className="specimen-grid">{content.specimens.map((specimen, i) => <article className="specimen-card hover-enlarge" key={specimen.id || specimen.name}><img src={images[(i + index) % images.length]} alt="" /><div><span>{specimen.id || `SPECIMEN ${String(i + 1).padStart(2, "0")} / ${category[1]}`}</span><h2>{specimen.name}</h2><p>{specimen.id ? specimen.description : specimen.label}</p>{specimen.id && <details className="specimen-record"><summary>Open archive record</summary><dl><div><dt>MEDIUM</dt><dd>{specimen.medium}</dd></div><div><dt>LOCATION</dt><dd>{specimen.location}</dd></div><div><dt>ACCESSION DATE</dt><dd>{specimen.accessionDate}</dd></div></dl><p><strong>CURATOR'S NOTE</strong><br />{specimen.curatorNote}</p><p><strong>AI IMAGE PROMPT</strong><br />{specimen.prompt}</p></details>}<a href={`/specimen/${specimen.name.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a></div></article>)}</div><div className="category-nav"><button type="button" onClick={() => navigate(`/archive/${categories[(index + categories.length - 1) % categories.length][0]}`)}><ArrowLeft size={15} /> Previous door</button><a href="/archive">All doors</a><button type="button" onClick={() => navigate(`/archive/${categories[(index + 1) % categories.length][0]}`)}>Next door <ArrowRight size={15} /></button></div></PageShell>;
 }
