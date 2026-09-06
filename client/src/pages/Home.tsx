@@ -123,7 +123,7 @@ export default function Home() {
 
         <section className="curator section-grid" id="curator">
           <div className="section-kicker"><span>02</span><span>Curator's desk</span></div>
-          <div className="curator-copy"><p className="eyebrow oxblood">Leave something behind</p><h2>Open a new<br /><em>door.</em></h2><p>The public house is for looking. The curator's desk is where new specimens are written, illustrated, and filed for release.</p><a className="button-outline" href="/curator-admin">Enter the curator desk <ArrowUpRight size={16} /></a></div>
+          <div className="curator-copy"><p className="eyebrow oxblood">Leave something behind</p><h2>Open a new<br /><em>door.</em></h2><p>The public house is for looking. The curator's desk is where new specimens are written, illustrated, and filed for release.</p><a className="button-outline" href="/curator-entry">Enter the curator desk <ArrowUpRight size={16} /></a></div>
           <div className="curator-note"><span>FIELD NOTE 017</span><blockquote>“The collection grows every time someone names the thing in the dark.”</blockquote><small>— anonymous, recovered margin</small></div>
         </section>
 

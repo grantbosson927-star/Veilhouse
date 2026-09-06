@@ -12,8 +12,8 @@ function AccessGate() {
   const { user, loading, logout } = useAuth();
   const ownerAccess = trpc.curator.access.useQuery(undefined, { retry: false });
   if (loading || ownerAccess.isLoading) return <div className="admin-loading"><Loader2 className="spin" size={18} /> Checking the curator key…</div>;
-  if (!user) return <div className="admin-gate"><p className="eyebrow oxblood">Private archive</p><h1>Curator access<br /><em>required.</em></h1><p>Sign in with the authorized curator account to enter the desk. Public visitors never see the posting tools.</p><button className="button-outline" onClick={() => startLogin()}>Sign in as curator <ArrowUpRight size={16} /></button></div>;
-  if (!ownerAccess.data) return <div className="admin-gate"><p className="eyebrow oxblood">Restricted room</p><h1>This door is<br /><em>not yours.</em></h1><p>The account <strong>{user.email || user.name || "currently signed in"}</strong> is authenticated, but only the project-owner curator account may enter this house.</p><button className="button-outline" onClick={logout}><LogOut size={16} /> Sign out</button></div>;
+  if (!user) return <div className="admin-gate"><p className="eyebrow oxblood">Private archive</p><h1>Curator access<br /><em>required.</em></h1><p>Leave your email first, then sign in with the authorized curator account to enter the desk. Public visitors never see the posting tools.</p><a className="button-outline" href="/curator-entry">Enter your email <ArrowUpRight size={16} /></a></div>;
+  if (!ownerAccess.data) return <div className="admin-gate"><p className="eyebrow oxblood">Restricted room</p><h1>This door is<br /><em>not yours.</em></h1><p>The account <strong>{user.email || user.name || "currently signed in"}</strong> is authenticated, but only the project-owner curator account may enter this house.</p><a className="button-outline" href="/curator-entry">Try the curator gate <ArrowUpRight size={16} /></a><button className="button-outline" onClick={logout}><LogOut size={16} /> Sign out</button></div>;
   return <CuratorDesk userName={user.name || user.email || "Curator"} />;
 }
 
