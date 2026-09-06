@@ -1,21 +1,39 @@
-import { desc, eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { CuratorPost, CuratorPostRevision, DreamSubmission, InsertCuratorPost, InsertCuratorPostRevision, InsertCuratorSpecimen, InsertCuratorSubmission, InsertDreamSubmission, InsertUser, curatorPostRevisions, curatorPosts, curatorSettings, curatorSpecimens, curatorSubmissions, dreamSubmissions, subscribers, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { and, desc, eq, lte } from "drizzle-orm";
+import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
+import {
+  CuratorPost,
+  CuratorPostRevision,
+  DreamSubmission,
+  InsertCuratorPost,
+  InsertCuratorPostRevision,
+  InsertCuratorSpecimen,
+  InsertCuratorSubmission,
+  InsertDreamSubmission,
+  InsertUser,
+  curatorPostRevisions,
+  curatorPosts,
+  curatorSettings,
+  curatorSpecimens,
+  curatorSubmissions,
+  dreamSubmissions,
+  subscribers,
+  users,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
+import { getRuntime } from "./runtime";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: DrizzleD1Database | null = null;
+let _bound: D1Database | undefined;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      _db = drizzle(process.env.DATABASE_URL);
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
+  const d1 = getRuntime()?.d1;
+  if (d1) {
+    if (_db && _bound === d1) return _db;
+    _bound = d1;
+    _db = drizzle(d1);
+    return _db;
   }
-  return _db;
+  return null;
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
@@ -29,64 +47,43 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     return;
   }
 
-  try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
+  const values: InsertUser = { openId: user.openId };
+  const updateSet: Record<string, unknown> = {};
+  const textFields = ["name", "email", "loginMethod"] as const;
 
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
+  for (const field of textFields) {
+    const value = user[field];
+    if (value === undefined) continue;
+    values[field] = value ?? null;
+    updateSet[field] = value ?? null;
   }
+
+  if (user.lastSignedIn !== undefined) {
+    values.lastSignedIn = user.lastSignedIn;
+    updateSet.lastSignedIn = user.lastSignedIn;
+  }
+  if (user.role !== undefined) {
+    values.role = user.role;
+    updateSet.role = user.role;
+  } else if (user.openId === ENV.ownerOpenId) {
+    values.role = "admin";
+    updateSet.role = "admin";
+  }
+  if (!values.lastSignedIn) values.lastSignedIn = new Date();
+  if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
+  updateSet.updatedAt = new Date();
+
+  await db.insert(users).values(values).onConflictDoUpdate({
+    target: users.openId,
+    set: updateSet,
+  });
 }
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
-
+  if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  return result[0];
 }
 
 export async function listCuratorPosts() {
@@ -122,18 +119,23 @@ export async function getCuratorPostByScheduleTaskUid(taskUid: string) {
   return rows[0];
 }
 
+export async function listDueCuratorPosts(now = new Date()) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(curatorPosts).where(and(eq(curatorPosts.status, "draft"), lte(curatorPosts.scheduledFor, now)));
+}
+
 export async function createCuratorPost(post: InsertCuratorPost): Promise<CuratorPost | undefined> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.insert(curatorPosts).values(post);
-  const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.id, result[0].insertId));
+  const rows = await db.insert(curatorPosts).values(post).returning();
   return rows[0];
 }
 
 export async function updateCuratorPost(id: number, post: Partial<Omit<InsertCuratorPost, "id" | "authorId">>) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(curatorPosts).set(post).where(eq(curatorPosts.id, id));
+  await db.update(curatorPosts).set({ ...post, updatedAt: new Date() }).where(eq(curatorPosts.id, id));
   const rows = await db.select().from(curatorPosts).where(eq(curatorPosts.id, id));
   return rows[0];
 }
@@ -148,8 +150,7 @@ export async function deleteCuratorPost(id: number) {
 export async function createCuratorRevision(revision: InsertCuratorPostRevision): Promise<CuratorPostRevision | undefined> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.insert(curatorPostRevisions).values(revision);
-  const rows = await db.select().from(curatorPostRevisions).where(eq(curatorPostRevisions.id, result[0].insertId));
+  const rows = await db.insert(curatorPostRevisions).values(revision).returning();
   return rows[0];
 }
 
@@ -169,7 +170,11 @@ export async function getCuratorEmail() {
 export async function setCuratorEmail(email: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.insert(curatorSettings).values({ id: 1, email: email.trim().toLowerCase() }).onDuplicateKeyUpdate({ set: { email: email.trim().toLowerCase() } });
+  const normalized = email.trim().toLowerCase();
+  await db.insert(curatorSettings).values({ id: 1, email: normalized, updatedAt: new Date() }).onConflictDoUpdate({
+    target: curatorSettings.id,
+    set: { email: normalized, updatedAt: new Date() },
+  });
   return getCuratorEmail();
 }
 
@@ -189,7 +194,8 @@ export async function getCuratorSpecimen(slug: string) {
 export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.insert(curatorSpecimens).values(specimen).onDuplicateKeyUpdate({
+  await db.insert(curatorSpecimens).values(specimen).onConflictDoUpdate({
+    target: curatorSpecimens.slug,
     set: {
       title: specimen.title,
       category: specimen.category,
@@ -200,6 +206,7 @@ export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
       imageKey: specimen.imageKey ?? null,
       videoKey: specimen.videoKey ?? null,
       heroMedia: specimen.heroMedia,
+      updatedAt: new Date(),
     },
   });
   return getCuratorSpecimen(specimen.slug);
@@ -208,8 +215,7 @@ export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
 export async function createCuratorSubmission(submission: InsertCuratorSubmission) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.insert(curatorSubmissions).values(submission);
-  const rows = await db.select().from(curatorSubmissions).where(eq(curatorSubmissions.id, result[0].insertId)).limit(1);
+  const rows = await db.insert(curatorSubmissions).values(submission).returning();
   return rows[0];
 }
 
@@ -223,7 +229,10 @@ export async function addSubscriber(email: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const normalized = email.trim().toLowerCase();
-  await db.insert(subscribers).values({ email: normalized, source: "dispatch" }).onDuplicateKeyUpdate({ set: { email: normalized } });
+  await db.insert(subscribers).values({ email: normalized, source: "dispatch" }).onConflictDoUpdate({
+    target: subscribers.email,
+    set: { email: normalized },
+  });
   const rows = await db.select().from(subscribers).where(eq(subscribers.email, normalized)).limit(1);
   return rows[0];
 }
@@ -237,8 +246,7 @@ export async function listSubscribers() {
 export async function createDreamSubmission(submission: InsertDreamSubmission): Promise<DreamSubmission | undefined> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.insert(dreamSubmissions).values(submission);
-  const rows = await db.select().from(dreamSubmissions).where(eq(dreamSubmissions.id, result[0].insertId));
+  const rows = await db.insert(dreamSubmissions).values(submission).returning();
   return rows[0];
 }
 

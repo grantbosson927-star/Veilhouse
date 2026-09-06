@@ -1,48 +1,55 @@
 import type { Express } from "express";
-import { ENV } from "./env";
+import { getRuntime } from "../runtime";
+
+function guessContentType(key: string): string {
+  const lower = key.toLowerCase();
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".gif")) return "image/gif";
+  if (lower.endsWith(".mp4")) return "video/mp4";
+  if (lower.endsWith(".webm")) return "video/webm";
+  return "application/octet-stream";
+}
 
 export function registerStorageProxy(app: Express) {
-  app.get("/manus-storage/*", async (req, res) => {
-    const key = (req.params as Record<string, string>)[0];
+  const handler = async (req: { params: Record<string, string> }, res: {
+    status: (code: number) => { send: (body: string) => void };
+    set: (header: string, value: string) => void;
+    send: (body: Buffer | string) => void;
+  }) => {
+    const key = String(req.params[0] || "").replace(/^\/+/, "");
     if (!key) {
       res.status(400).send("Missing storage key");
       return;
     }
 
-    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
-      res.status(500).send("Storage proxy not configured");
+    const media = getRuntime()?.media;
+    if (media) {
+      const object = await media.get(key);
+      if (!object) {
+        res.status(404).send("Not found");
+        return;
+      }
+      res.set("Content-Type", object.httpMetadata?.contentType || guessContentType(key));
+      res.set("Cache-Control", "public, max-age=31536000, immutable");
+      res.send(Buffer.from(await object.arrayBuffer()));
       return;
     }
 
     try {
-      const forgeUrl = new URL(
-        "v1/storage/presign/get",
-        ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
-      );
-      forgeUrl.searchParams.set("path", key);
-
-      const forgeResp = await fetch(forgeUrl, {
-        headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
-      });
-
-      if (!forgeResp.ok) {
-        const body = await forgeResp.text().catch(() => "");
-        console.error(`[StorageProxy] forge error: ${forgeResp.status} ${body}`);
-        res.status(502).send("Storage backend error");
-        return;
-      }
-
-      const { url } = (await forgeResp.json()) as { url: string };
-      if (!url) {
-        res.status(502).send("Empty signed URL from backend");
-        return;
-      }
-
-      res.set("Cache-Control", "no-store");
-      res.redirect(307, url);
-    } catch (err) {
-      console.error("[StorageProxy] failed:", err);
-      res.status(502).send("Storage proxy error");
+      const fs = await import("node:fs/promises");
+      const path = await import("node:path");
+      const filePath = path.join(process.cwd(), ".data", "media", key);
+      const bytes = await fs.readFile(filePath);
+      res.set("Content-Type", guessContentType(key));
+      res.set("Cache-Control", "public, max-age=31536000, immutable");
+      res.send(bytes);
+    } catch {
+      res.status(404).send("Not found");
     }
-  });
+  };
+
+  app.get("/media/*", handler);
+  app.get("/manus-storage/*", handler);
 }

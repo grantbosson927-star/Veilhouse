@@ -41,8 +41,10 @@ describe("curator access", () => {
   });
 
   it("accepts the authenticated project owner's current account email", async () => {
+    process.env.OWNER_OPEN_ID = process.env.OWNER_OPEN_ID || "test-owner-open-id";
+    process.env.OWNER_NAME = process.env.OWNER_NAME || "brillantelay5";
     let setCookie = "";
-    const context = createContext({ id: 1, openId: ENV.ownerOpenId, name: ENV.ownerName || "brillantelay5", email: "brillantelay5@gmail.com" });
+    const context = createContext({ id: 1, openId: ENV.ownerOpenId, name: ENV.ownerName, email: "brillantelay5@gmail.com" });
     context.res = {
       cookie: (_name: string, value: string) => { setCookie = value; },
     } as TrpcContext["res"];
@@ -61,6 +63,7 @@ describe("curator access", () => {
   });
 
   it("accepts the configured project owner", async () => {
+    process.env.OWNER_OPEN_ID = process.env.OWNER_OPEN_ID || "test-owner-open-id";
     expect(ENV.ownerOpenId).toBeTruthy();
     const caller = appRouter.createCaller(createContext({ role: "admin", openId: ENV.ownerOpenId }));
     await expect(caller.curator.access()).resolves.toBe(true);
