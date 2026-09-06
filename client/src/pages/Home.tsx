@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { religiousHorrorRecords } from "./religiousHorror";
 import { archiveImages } from "./archiveImages";
 import { archiveMetadata } from "./archiveMetadata";
+import AccountRitual from "@/components/AccountRitual";
 
 const images = {
   hero: "/archive-assets/generated/veilhouse/hero_55e3aafa.jpg",
@@ -113,7 +114,8 @@ export default function Home() {
           <a href="/field-notes" onClick={() => setMenuOpen(false)}>Field Notes</a>
           <a href="/dreams" onClick={() => setMenuOpen(false)}>Dreams</a>
         </nav>
-        <div className="topbar-actions">
+          <div className="topbar-actions">
+          <AccountRitual compact />
           <a className="issue-link" href="#dispatches">Issue 03 <ArrowUpRight size={15} /></a>
           <button className="menu-button" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
         </div>

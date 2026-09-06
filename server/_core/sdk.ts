@@ -298,6 +298,7 @@ class SDKServer {
         email,
         loginMethod: "curator-email",
         role: "admin",
+        offerings: 1000,
         createdAt: signedInAt,
         updatedAt: signedInAt,
         lastSignedIn: signedInAt,

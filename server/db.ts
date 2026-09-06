@@ -1,4 +1,4 @@
-import { and, desc, eq, lte } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
 import {
   CuratorPost,
@@ -9,6 +9,8 @@ import {
   InsertCuratorSpecimen,
   InsertCuratorSubmission,
   InsertDreamSubmission,
+  InsertGeneratedDream,
+  InsertSpecimenUnlock,
   InsertUser,
   curatorPostRevisions,
   curatorPosts,
@@ -16,6 +18,9 @@ import {
   curatorSpecimens,
   curatorSubmissions,
   dreamSubmissions,
+  generatedDreams,
+  offeringLedger,
+  specimenUnlocks,
   subscribers,
   users,
 } from "../drizzle/schema";
@@ -84,6 +89,66 @@ export async function getUserByOpenId(openId: string) {
   if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   return result[0];
+}
+
+export async function listUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(users).orderBy(desc(users.createdAt));
+}
+
+export async function spendOfferings(userId: number, amount: number, reason: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const current = (await db.select().from(users).where(eq(users.id, userId)).limit(1))[0];
+  if (!current || current.offerings < amount) return { accepted: false as const, user: current };
+  await db.update(users).set({ offerings: current.offerings - amount, updatedAt: new Date() }).where(and(eq(users.id, userId), gte(users.offerings, amount)));
+  await db.insert(offeringLedger).values({ userId, amount: -amount, reason, createdAt: new Date() });
+  const updated = (await db.select().from(users).where(eq(users.id, userId)).limit(1))[0];
+  return { accepted: true as const, user: updated };
+}
+
+export async function restoreOfferings(userId: number, amount: number, reason: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const current = (await db.select().from(users).where(eq(users.id, userId)).limit(1))[0];
+  if (!current) return;
+  await db.update(users).set({ offerings: current.offerings + amount, updatedAt: new Date() }).where(eq(users.id, userId));
+  await db.insert(offeringLedger).values({ userId, amount, reason, createdAt: new Date() });
+}
+
+export async function listOfferingLedger(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(offeringLedger).where(eq(offeringLedger.userId, userId)).orderBy(desc(offeringLedger.createdAt)).limit(20);
+}
+
+export async function createGeneratedDream(dream: InsertGeneratedDream) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.insert(generatedDreams).values(dream).returning();
+  return rows[0];
+}
+
+export async function listGeneratedDreams(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(generatedDreams).where(eq(generatedDreams.userId, userId)).orderBy(desc(generatedDreams.createdAt)).limit(12);
+}
+
+export async function listSpecimenUnlocks(userId: number, specimenSlug: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(specimenUnlocks).where(and(eq(specimenUnlocks.userId, userId), eq(specimenUnlocks.specimenSlug, specimenSlug)));
+}
+
+export async function createSpecimenUnlock(unlock: InsertSpecimenUnlock) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = await db.select().from(specimenUnlocks).where(and(eq(specimenUnlocks.userId, unlock.userId), eq(specimenUnlocks.specimenSlug, unlock.specimenSlug), eq(specimenUnlocks.kind, unlock.kind))).limit(1);
+  if (existing[0]) return existing[0];
+  const rows = await db.insert(specimenUnlocks).values(unlock).returning();
+  return rows[0];
 }
 
 export async function listCuratorPosts() {

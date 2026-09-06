@@ -7,6 +7,7 @@ export const users = sqliteTable("users", {
   email: text("email"),
   loginMethod: text("loginMethod"),
   role: text("role", { enum: ["user", "admin"] }).default("user").notNull(),
+  offerings: integer("offerings").default(1000).notNull(),
   createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
   updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
   lastSignedIn: integer("lastSignedIn", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
@@ -82,6 +83,7 @@ export type InsertCuratorSpecimen = typeof curatorSpecimens.$inferInsert;
 
 export const curatorSubmissions = sqliteTable("curator_submissions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("userId"),
   name: text("name").notNull(),
   email: text("email").notNull(),
   category: text("category").notNull(),
@@ -107,6 +109,7 @@ export type Subscriber = typeof subscribers.$inferSelect;
 
 export const dreamSubmissions = sqliteTable("dream_submissions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("userId"),
   title: text("title").notNull(),
   dreamText: text("dreamText").notNull(),
   createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
@@ -114,3 +117,37 @@ export const dreamSubmissions = sqliteTable("dream_submissions", {
 
 export type DreamSubmission = typeof dreamSubmissions.$inferSelect;
 export type InsertDreamSubmission = typeof dreamSubmissions.$inferInsert;
+
+export const offeringLedger = sqliteTable("offering_ledger", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("userId").notNull(),
+  amount: integer("amount").notNull(),
+  reason: text("reason").notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+});
+
+export type OfferingLedgerEntry = typeof offeringLedger.$inferSelect;
+export type InsertOfferingLedgerEntry = typeof offeringLedger.$inferInsert;
+
+export const generatedDreams = sqliteTable("generated_dreams", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("userId").notNull(),
+  title: text("title").notNull(),
+  prompt: text("prompt").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+});
+
+export type GeneratedDream = typeof generatedDreams.$inferSelect;
+export type InsertGeneratedDream = typeof generatedDreams.$inferInsert;
+
+export const specimenUnlocks = sqliteTable("specimen_unlocks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("userId").notNull(),
+  specimenSlug: text("specimenSlug").notNull(),
+  kind: text("kind", { enum: ["story", "video", "audio"] }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+});
+
+export type SpecimenUnlock = typeof specimenUnlocks.$inferSelect;
+export type InsertSpecimenUnlock = typeof specimenUnlocks.$inferInsert;

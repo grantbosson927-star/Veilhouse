@@ -3,12 +3,14 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
-import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listPublishedCuratorPosts, listSubscribers, setCuratorEmail, updateCuratorPost, upsertCuratorSpecimen, upsertUser, getUserByOpenId } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, createGeneratedDream, createSpecimenUnlock, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, getUserByOpenId, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listGeneratedDreams, listOfferingLedger, listPublishedCuratorPosts, listSpecimenUnlocks, listSubscribers, listUsers, restoreOfferings, setCuratorEmail, spendOfferings, updateCuratorPost, upsertCuratorSpecimen, upsertUser } from "./db";
 import { storagePut } from "./storage";
 import { notifyOwner } from "./_core/notification";
 import { sdk } from "./_core/sdk";
 import { nextCronDate } from "./scheduleCron";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import { generateImage } from "./_core/imageGeneration";
 
 const mediaRef = z.string().refine((value) => value === "" || value.startsWith("/media/") || value.startsWith("/manus-storage/") || value.startsWith("/archive-assets/") || /^https?:\/\//.test(value), "Please enter a valid media URL");
 
@@ -23,6 +25,13 @@ export const appRouter = router({
       return {
         success: true,
       } as const;
+    }),
+  }),
+
+  account: router({
+    snapshot: protectedProcedure.query(async ({ ctx }) => {
+      const user = await getUserByOpenId(ctx.user.openId);
+      return { user: user || ctx.user, ledger: await listOfferingLedger(ctx.user.id) };
     }),
   }),
 
@@ -41,6 +50,7 @@ export const appRouter = router({
         email,
         loginMethod: "curator-email",
         role: "admin" as const,
+        offerings: 1000,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastSignedIn: new Date(),
@@ -70,6 +80,7 @@ export const appRouter = router({
     })).mutation(({ input }) => upsertCuratorSpecimen({ ...input, story: input.story || null, imageUrl: input.imageUrl || null, videoUrl: input.videoUrl || null, imageKey: input.imageKey || null, videoKey: input.videoKey || null })),
     subscribers: ownerProcedure.query(() => listSubscribers()),
     submissions: ownerProcedure.query(() => listCuratorSubmissions()),
+    users: ownerProcedure.query(() => listUsers()),
     published: publicProcedure.query(() => listPublishedCuratorPosts()),
     bySlug: publicProcedure.input(z.object({ slug: z.string().min(1) })).query(async ({ input }) => { const post = await getCuratorPostBySlug(input.slug); return post?.status === "published" ? post : null; }),
     list: ownerProcedure.query(() => listCuratorPosts()),
@@ -128,8 +139,36 @@ export const appRouter = router({
     subscribe: publicProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => addSubscriber(input.email)),
   }),
   dreams: router({
-    submit: publicProcedure.input(z.object({ title: z.string().min(1).max(255), dreamText: z.string().min(1).max(5000) })).mutation(({ input }) => createDreamSubmission({ title: input.title.trim(), dreamText: input.dreamText.trim() })),
+    submit: publicProcedure.input(z.object({ title: z.string().min(1).max(255), dreamText: z.string().min(1).max(5000) })).mutation(({ input, ctx }) => createDreamSubmission({ userId: ctx.user?.id, title: input.title.trim(), dreamText: input.dreamText.trim() })),
     recent: publicProcedure.query(() => listDreamSubmissions()),
+    mine: protectedProcedure.query(({ ctx }) => listGeneratedDreams(ctx.user.id)),
+    generate: protectedProcedure.input(z.object({ title: z.string().min(1).max(255), dreamText: z.string().min(1).max(5000) })).mutation(async ({ input, ctx }) => {
+      const cost = 150;
+      const spent = await spendOfferings(ctx.user.id, cost, "Dragged a nightmare from the 7th circle");
+      if (!spent.accepted) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "The House demands a greater sacrifice." });
+      const prompt = `Create an original dark surreal horror image with the atmosphere of an obscure underground analog horror film. The visual world should combine grotesque body horror, decaying religious imagery, organic architecture, ritualistic symbolism, and dreamlike psychological unease. Use wet fleshy textures, teeth, mouths, bone-like forms, rotting fabric, wax, rust, and handmade practical-effects materials. Make it feel like a lost frame from a disturbing 1970s or 1980s experimental horror movie: muted burgundy, brown, dirty ochre, black, and sickly green tones; dim candlelight; weak cyan television-like glow; deep shadows; soft focus; heavy film grain; faded colors; slight lens distortion; dark vignette; aged analog-film texture. Favor solemn stillness, strange ceremonies, unsettling silhouettes, and unexplained details over explicit gore. Render this visitor's dream fragment as a tactile archival image: ${input.dreamText.trim()}`;
+      try {
+        const generated = await generateImage({ prompt, model: "MODEL_GPT_IMAGE_2", quality: "medium" });
+        if (!generated.url) throw new Error("The image did not return from the dark.");
+        const dream = await createGeneratedDream({ userId: ctx.user.id, title: input.title.trim(), prompt, imageUrl: generated.url, createdAt: new Date() });
+        return { dream, offerings: spent.user?.offerings ?? 0 };
+      } catch (error) {
+        await restoreOfferings(ctx.user.id, cost, "The House returned the offering after the image failed to arrive");
+        throw error;
+      }
+    }),
+  }),
+  specimens: router({
+    unlocks: protectedProcedure.input(z.object({ specimenSlug: z.string().min(1) })).query(({ input, ctx }) => listSpecimenUnlocks(ctx.user.id, input.specimenSlug)),
+    unlock: protectedProcedure.input(z.object({ specimenSlug: z.string().min(1), kind: z.enum(["story", "video", "audio"]) })).mutation(async ({ input, ctx }) => {
+      const existing = await listSpecimenUnlocks(ctx.user.id, input.specimenSlug);
+      if (existing.some((entry) => entry.kind === input.kind)) return { unlocked: true as const, offerings: ctx.user.offerings };
+      const cost = input.kind === "story" ? 50 : 150;
+      const spent = await spendOfferings(ctx.user.id, cost, `Exposed the hidden archive: ${input.specimenSlug} / ${input.kind}`);
+      if (!spent.accepted) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "The House demands a greater sacrifice." });
+      await createSpecimenUnlock({ userId: ctx.user.id, specimenSlug: input.specimenSlug, kind: input.kind, createdAt: new Date() });
+      return { unlocked: true as const, offerings: spent.user?.offerings ?? 0 };
+    }),
   }),
   submissions: router({
     create: publicProcedure.input(z.object({
@@ -141,7 +180,7 @@ export const appRouter = router({
       imageData: z.string().optional(),
       imageName: z.string().max(160).optional(),
       imageContentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]).optional(),
-    })).mutation(async ({ input }) => {
+    })).mutation(async ({ input, ctx }) => {
       let imageUrl: string | null = null;
       let imageKey: string | null = null;
       if (input.imageData) {
@@ -151,7 +190,7 @@ export const appRouter = router({
         imageUrl = asset.url;
         imageKey = asset.key;
       }
-      const submission = await createCuratorSubmission({ name: input.name.trim(), email: input.email.trim().toLowerCase(), category: input.category, title: input.title.trim(), description: input.description.trim(), imageUrl, imageKey, recipient: "curator@veilhouse.monster" });
+      const submission = await createCuratorSubmission({ userId: ctx.user?.id, name: input.name.trim(), email: input.email.trim().toLowerCase(), category: input.category, title: input.title.trim(), description: input.description.trim(), imageUrl, imageKey, recipient: "curator@veilhouse.monster" });
       try { await notifyOwner({ title: `New Veilhouse specimen: ${submission?.title || input.title}`, content: `Route this submission to curator@veilhouse.monster.\n\nFrom: ${input.name} <${input.email}>\nCategory: ${input.category}\nTitle: ${input.title}\n\n${input.description}${imageUrl ? `\n\nImage: ${imageUrl}` : "\n\nNo image attached."}` }); } catch (error) { console.warn("[Submissions] Stored submission but notification delivery was unavailable:", error); }
       return { accepted: true, recipient: "curator@veilhouse.monster", id: submission?.id, imageUrl } as const;
     }),
