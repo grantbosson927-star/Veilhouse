@@ -78,6 +78,17 @@ export const appRouter = router({
       videoKey: z.string().optional().or(z.literal("")),
       heroMedia: z.enum(["image", "video"]),
     })).mutation(({ input }) => upsertCuratorSpecimen({ ...input, story: input.story || null, imageUrl: input.imageUrl || null, videoUrl: input.videoUrl || null, imageKey: input.imageKey || null, videoKey: input.videoKey || null })),
+    generateSpecimenImage: ownerProcedure.input(z.object({
+      slug: z.string().min(1).max(255),
+      title: z.string().min(1).max(255),
+      category: z.string().min(1).max(120),
+      story: z.string().min(1).max(12000),
+    })).mutation(async ({ input }) => {
+      const prompt = `Create a dedicated archival image for the Veilhouse specimen “${input.title}” from the ${input.category} door. ${input.story} Original dark surreal horror, cinematic composition, obscure underground analog horror film from the 1970s or 1980s, tactile practical-effects photography rather than polished CGI. Combine grotesque body horror, decaying religious imagery, organic architecture, ritualistic symbolism, impossible dream geometry, wet fleshy textures, teeth, mouths, bone-like forms, rotting fabric, wax, rust, and handmade materials. Use muted burgundy, brown, dirty ochre, black, and sickly green tones; dim candlelight; weak cyan television-like glow; deep shadows; soft focus; heavy aged film grain; faded colors; slight lens distortion; dark vignette. Favor solemn stillness, unsettling silhouettes, strange ceremonies, and unexplained details over explicit gore. Make this image visually distinct from every other specimen, with a unique subject, camera angle, setting, and composition. No text, no labels, no watermark.`;
+      const generated = await generateImage({ prompt, model: "MODEL_GPT_IMAGE_2", quality: "medium" });
+      if (!generated.url) throw new Error("The House returned no image from the image chamber.");
+      return { slug: input.slug, url: generated.url };
+    }),
     subscribers: ownerProcedure.query(() => listSubscribers()),
     submissions: ownerProcedure.query(() => listCuratorSubmissions()),
     users: ownerProcedure.query(() => listUsers()),
