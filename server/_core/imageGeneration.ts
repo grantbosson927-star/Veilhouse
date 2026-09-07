@@ -1,142 +1,55 @@
 /**
- * Image generation helper using internal ImageService
- *
- * Example usage:
- *   const { url: imageUrl } = await generateImage({
- *     prompt: "A serene landscape with mountains"
- *   });
- *
- * For editing:
- *   const { url: imageUrl } = await generateImage({
- *     prompt: "Add a rainbow to this landscape",
- *     originalImages: [{
- *       url: "https://example.com/original.jpg",
- *       mimeType: "image/jpeg"
- *     }]
- *   });
+ * Image generation through Manus Forge locally, with Cloudflare Workers AI as
+ * the production path. Generated images are persisted through the active media
+ * runtime so Dream Door records remain usable after the request ends.
  */
 import { storagePut } from "server/storage";
+import { getRuntime } from "server/runtime";
 import { ENV } from "./env";
 
-// Default model for generated sites. "MODEL_GPT_IMAGE_2" is the forge images.v1
-// enum for GPT Image 2 (id: gpt-image-2). If omitted, forge falls back to Gemini 2.5 Flash.
 const DEFAULT_IMAGE_MODEL = "MODEL_GPT_IMAGE_2";
 const DEFAULT_IMAGE_QUALITY = "medium";
+const CLOUDFLARE_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 
 export type GenerateImageOptions = {
   prompt: string;
-  originalImages?: Array<{
-    url?: string;
-    b64Json?: string;
-    mimeType?: string;
-  }>;
-  /** Forge image model enum, e.g. "MODEL_GPT_IMAGE_2". Defaults to GPT Image 2. */
+  originalImages?: Array<{ url?: string; b64Json?: string; mimeType?: string }>;
   model?: string;
-  /** Generation quality, e.g. "medium" | "high". Defaults to "medium" for GPT Image 2. */
   quality?: string;
 };
 
-export type GenerateImageResponse = {
-  url?: string;
-};
+export type GenerateImageResponse = { url?: string };
 
-export async function generateImage(
-  options: GenerateImageOptions
-): Promise<GenerateImageResponse> {
-  if (!ENV.forgeApiUrl) {
-    throw new Error("BUILT_IN_FORGE_API_URL is not configured");
-  }
-  if (!ENV.forgeApiKey) {
-    throw new Error("BUILT_IN_FORGE_API_KEY is not configured");
-  }
+type CloudflareImageResult = { image?: string };
 
-  // Build the full URL by appending the service path to the base URL
-  const baseUrl = ENV.forgeApiUrl.endsWith("/")
-    ? ENV.forgeApiUrl
-    : `${ENV.forgeApiUrl}/`;
-  const fullUrl = new URL(
-    "images.v1.ImageService/GenerateImage",
-    baseUrl
-  ).toString();
-
-  const model = options.model ?? DEFAULT_IMAGE_MODEL;
-  const quality =
-    options.quality ?? (model === DEFAULT_IMAGE_MODEL ? DEFAULT_IMAGE_QUALITY : undefined);
-
-  const response = await fetch(fullUrl, {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-      "connect-protocol-version": "1",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify({
-      prompt: options.prompt,
-      original_images: options.originalImages || [],
-      model,
-      ...(quality ? { quality } : {}),
-    }),
-  });
-
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(
-      `Image generation request failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
-    );
-  }
-
-  const result = (await response.json()) as {
-    image: {
-      b64Json: string;
-      mimeType: string;
-    };
-  };
-  const base64Data = result.image.b64Json;
-  const buffer = Buffer.from(base64Data, "base64");
-
-  // Save to S3
-  const { url } = await storagePut(
-    `generated/${Date.now()}.png`,
-    buffer,
-    result.image.mimeType
-  );
-  return {
-    url,
-  };
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
 }
 
-export type ImageModelInfo = {
-  /** Forge model enum, e.g. "MODEL_GPT_IMAGE_2". Pass into generateImage({ model }). */
-  model?: string;
-  /** Stable model id, e.g. "gpt-image-2". */
-  id?: string;
-};
+async function generateWithCloudflareAI(prompt: string): Promise<GenerateImageResponse> {
+  const ai = getRuntime()?.ai;
+  if (!ai) throw new Error("Cloudflare Workers AI is not configured. Add an AI binding named AI and redeploy.");
 
-export type ListImageModelsResponse = {
-  models: ImageModelInfo[];
-};
+  const result = (await ai.run(CLOUDFLARE_IMAGE_MODEL, {
+    prompt: prompt.slice(0, 2048),
+    steps: 4,
+    seed: Math.floor(Math.random() * 2_147_483_647),
+  })) as CloudflareImageResult;
 
-/**
- * List the image models the internal ImageService currently supports.
- * Feed a returned `model` value into generateImage({ model }).
- */
-export async function listImageModels(): Promise<ListImageModelsResponse> {
-  if (!ENV.forgeApiUrl) {
-    throw new Error("BUILT_IN_FORGE_API_URL is not configured");
-  }
-  if (!ENV.forgeApiKey) {
-    throw new Error("BUILT_IN_FORGE_API_KEY is not configured");
-  }
+  if (!result.image) throw new Error("The House returned no image from the Cloudflare image chamber.");
+  const asset = await storagePut(`generated/dream-${Date.now()}.jpg`, base64ToBytes(result.image), "image/jpeg");
+  return { url: asset.url };
+}
 
-  const baseUrl = ENV.forgeApiUrl.endsWith("/")
-    ? ENV.forgeApiUrl
-    : `${ENV.forgeApiUrl}/`;
-  const fullUrl = new URL(
-    "images.v1.ImageService/ListModels",
-    baseUrl
-  ).toString();
+async function generateWithForge(options: GenerateImageOptions): Promise<GenerateImageResponse> {
+  if (!ENV.forgeApiUrl) throw new Error("BUILT_IN_FORGE_API_URL is not configured");
+  if (!ENV.forgeApiKey) throw new Error("BUILT_IN_FORGE_API_KEY is not configured");
 
+  const baseUrl = ENV.forgeApiUrl.endsWith("/") ? ENV.forgeApiUrl : `${ENV.forgeApiUrl}/`;
+  const fullUrl = new URL("images.v1.ImageService/GenerateImage", baseUrl).toString();
+  const model = options.model ?? DEFAULT_IMAGE_MODEL;
+  const quality = options.quality ?? (model === DEFAULT_IMAGE_MODEL ? DEFAULT_IMAGE_QUALITY : undefined);
   const response = await fetch(fullUrl, {
     method: "POST",
     headers: {
@@ -145,16 +58,40 @@ export async function listImageModels(): Promise<ListImageModelsResponse> {
       "connect-protocol-version": "1",
       authorization: `Bearer ${ENV.forgeApiKey}`,
     },
-    body: "{}",
+    body: JSON.stringify({ prompt: options.prompt, original_images: options.originalImages || [], model, ...(quality ? { quality } : {}) }),
   });
-
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(
-      `List image models failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
-    );
+    throw new Error(`Image generation request failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`);
   }
+  const result = (await response.json()) as { image: { b64Json: string; mimeType: string } };
+  const asset = await storagePut(`generated/${Date.now()}.png`, Buffer.from(result.image.b64Json, "base64"), result.image.mimeType);
+  return { url: asset.url };
+}
 
+export async function generateImage(options: GenerateImageOptions): Promise<GenerateImageResponse> {
+  // Cloudflare Workers AI is the first path in production. The Forge path
+  // remains available for the local Manus development environment.
+  if (getRuntime()?.ai) return generateWithCloudflareAI(options.prompt);
+  return generateWithForge(options);
+}
+
+export type ImageModelInfo = { model?: string; id?: string };
+export type ListImageModelsResponse = { models: ImageModelInfo[] };
+
+export async function listImageModels(): Promise<ListImageModelsResponse> {
+  if (!ENV.forgeApiUrl) throw new Error("BUILT_IN_FORGE_API_URL is not configured");
+  if (!ENV.forgeApiKey) throw new Error("BUILT_IN_FORGE_API_KEY is not configured");
+  const baseUrl = ENV.forgeApiUrl.endsWith("/") ? ENV.forgeApiUrl : `${ENV.forgeApiUrl}/`;
+  const response = await fetch(new URL("images.v1.ImageService/ListModels", baseUrl), {
+    method: "POST",
+    headers: { accept: "application/json", "content-type": "application/json", "connect-protocol-version": "1", authorization: `Bearer ${ENV.forgeApiKey}` },
+    body: "{}",
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(`List image models failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`);
+  }
   const result = (await response.json()) as { models?: ImageModelInfo[] };
   return { models: result.models ?? [] };
 }

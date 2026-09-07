@@ -9,6 +9,7 @@ import { handleGitHubOAuth } from "../server/_core/githubOAuth";
 export interface WorkerEnv {
   DB: D1Database;
   MEDIA: R2Bucket;
+  AI: { run(model: string, input: unknown): Promise<unknown> };
   ASSETS: Fetcher;
   JWT_SECRET: string;
   CURATOR_EMAIL?: string;
@@ -99,7 +100,7 @@ async function handleTrpc(request: Request, env: WorkerEnv) {
 export default {
   async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     applyEnv(env);
-    return runWithRuntime({ d1: env.DB, media: env.MEDIA }, async () => {
+    return runWithRuntime({ d1: env.DB, media: env.MEDIA, ai: env.AI }, async () => {
       const url = new URL(request.url);
 
       if (url.pathname === "/api/health") {
@@ -132,6 +133,6 @@ export default {
 
   async scheduled(_controller: ScheduledController, env: WorkerEnv): Promise<void> {
     applyEnv(env);
-    await runWithRuntime({ d1: env.DB, media: env.MEDIA }, () => publishDueCuratorPosts());
+    await runWithRuntime({ d1: env.DB, media: env.MEDIA, ai: env.AI }, () => publishDueCuratorPosts());
   },
 };

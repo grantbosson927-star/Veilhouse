@@ -19,6 +19,9 @@
       "bucket_name": "veilhouse-media"
     }
   ],
+  "ai": {
+    "binding": "AI"
+  },
   "d1_databases": [
     {
       "binding": "DB",
