@@ -70,8 +70,10 @@ async function generateWithForge(options: GenerateImageOptions): Promise<Generat
 }
 
 export async function generateImage(options: GenerateImageOptions): Promise<GenerateImageResponse> {
-  // Cloudflare Workers AI is the first path in production. The Forge path
-  // remains available for the local Manus development environment.
+  // GPT Image 2 through Manus Forge is preferred whenever its free built-in
+  // service is available. Cloudflare Workers AI is the production fallback
+  // when the Worker does not have Manus Forge environment variables.
+  if (ENV.forgeApiUrl && ENV.forgeApiKey) return generateWithForge(options);
   if (getRuntime()?.ai) return generateWithCloudflareAI(options.prompt);
   return generateWithForge(options);
 }
