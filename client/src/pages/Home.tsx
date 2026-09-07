@@ -21,7 +21,7 @@ const images = {
   mark: "/archive-assets/generated/veilhouse/veilhouse-mark_d304fc45.png",
 };
 
-type CuratedEntry = { slug: string; title: string; category: string; number: string; image: string; note: string };
+type CuratedEntry = { slug: string; title: string; category: string; number: string; image: string; note: string; visible?: boolean; featured?: boolean; displayOrder?: number };
 
 const entries: CuratedEntry[] = [
   { slug: "sister-catherines-ribcage", title: "Sister Catherine's Ribcage", category: "Religious horror", number: "001", image: "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-001.jpg", note: "The cathedral roots in the marrow." },
@@ -90,7 +90,7 @@ export default function Home() {
   const specimenOverridesQuery = trpc.curator.specimens.useQuery();
   const subscribe = trpc.dispatch.subscribe.useMutation({ onSuccess: () => { setSubscribed(true); setEmail(""); } });
   const [heroIndex, setHeroIndex] = useState(0);
-  const overriddenEntries = useMemo(() => { const apply = (entry: CuratedEntry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, image: saved?.imageUrl || entry.image, note: saved?.excerpt || entry.note }; }; return { lead: entries.map(apply), categories: Object.fromEntries(Object.entries(allCategoryEntries).map(([category, categoryEntries]) => [category, categoryEntries.map(apply)])) as Record<string, CuratedEntry[]> }; }, [specimenOverridesQuery.data]);
+  const overriddenEntries = useMemo(() => { const apply = (entry: CuratedEntry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, image: saved?.imageUrl || entry.image, note: saved?.excerpt || entry.note, visible: saved?.visible ?? true, featured: saved?.featured ?? false, displayOrder: saved?.displayOrder ?? 0 }; }; const order = (left: CuratedEntry, right: CuratedEntry) => (left.displayOrder || 0) - (right.displayOrder || 0); const leadEntries = entries.map(apply); const featured = leadEntries.filter((entry) => entry.featured).sort(order); return { lead: (featured.length ? featured : leadEntries.filter((entry) => entry.visible)).sort(order), categories: Object.fromEntries(Object.entries(allCategoryEntries).map(([category, categoryEntries]) => [category, categoryEntries.map(apply).filter((entry) => entry.visible).sort(order)])) as Record<string, CuratedEntry[]> }; }, [specimenOverridesQuery.data]);
   const heroSlides = useMemo(() => overriddenEntries.lead.map((entry) => { const saved = specimenOverridesQuery.data?.find((specimen) => specimen.slug === entry.slug); return { ...entry, heroImage: entry.image, heroVideo: saved?.videoUrl || "", heroMedia: saved?.heroMedia || "image", heroStory: saved?.excerpt || entry.note }; }), [overriddenEntries, specimenOverridesQuery.data]);
   useEffect(() => { if (heroSlides.length < 2) return; const timer = window.setInterval(() => setHeroIndex((current) => (current + 1) % heroSlides.length), 7000); return () => window.clearInterval(timer); }, [heroSlides.length]);
   const hero = heroSlides[heroIndex] || heroSlides[0];

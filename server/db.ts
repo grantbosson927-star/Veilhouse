@@ -243,10 +243,11 @@ export async function setCuratorEmail(email: string) {
   return getCuratorEmail();
 }
 
-export async function listCuratorSpecimens() {
+export async function listCuratorSpecimens(includeHidden = false) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(curatorSpecimens);
+  const query = db.select().from(curatorSpecimens);
+  return (includeHidden ? query : query.where(eq(curatorSpecimens.visible, true))).orderBy(curatorSpecimens.displayOrder, curatorSpecimens.title);
 }
 
 export async function getCuratorSpecimen(slug: string) {
@@ -270,7 +271,12 @@ export async function upsertCuratorSpecimen(specimen: InsertCuratorSpecimen) {
       videoUrl: specimen.videoUrl ?? null,
       imageKey: specimen.imageKey ?? null,
       videoKey: specimen.videoKey ?? null,
+      audioUrl: specimen.audioUrl ?? null,
+      audioKey: specimen.audioKey ?? null,
       heroMedia: specimen.heroMedia,
+      displayOrder: specimen.displayOrder ?? 0,
+      visible: specimen.visible ?? true,
+      featured: specimen.featured ?? false,
       updatedAt: new Date(),
     },
   });

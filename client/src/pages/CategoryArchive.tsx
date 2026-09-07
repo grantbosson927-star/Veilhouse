@@ -5,6 +5,7 @@ import { useLocation, useRoute } from "wouter";
 import { religiousHorrorRecords } from "./religiousHorror";
 import { archiveImages } from "./archiveImages";
 import { archiveMetadata, type ArchiveMetadata } from "./archiveMetadata";
+import { trpc } from "@/lib/trpc";
 
 const religiousHorrorImages = [
   "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-001.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-002.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-003.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-004.jpg",
@@ -42,7 +43,8 @@ export default function CategoryArchive() {
   const index = Math.max(0, categories.findIndex((category) => category[0] === slug));
   const category = categories[index] || categories[0];
   const records = category[0] === "religious-horror" ? religious : archiveMetadata[category[0]] || [];
-  const specimens: Specimen[] = records.map((record, specimenIndex) => ({ ...record, image: category[0] === "religious-horror" ? religiousHorrorImages[specimenIndex] : archiveImages[category[0]]?.[specimenIndex] }));
+  const overridesQuery = trpc.curator.specimens.useQuery();
+  const specimens: Specimen[] = records.map((record, specimenIndex) => ({ ...record, image: category[0] === "religious-horror" ? religiousHorrorImages[specimenIndex] : archiveImages[category[0]]?.[specimenIndex] })).map((specimen) => { const override = overridesQuery.data?.find((item) => item.slug === specimen.title.toLowerCase().replaceAll(" ", "-")); return { ...specimen, image: override?.imageUrl || specimen.image, description: override?.excerpt || specimen.description, displayOrder: override?.displayOrder || 0, visible: override?.visible ?? true }; }).filter((specimen) => specimen.visible).sort((left, right) => (left.displayOrder || 0) - (right.displayOrder || 0));
   const [, navigate] = useLocation();
 
   return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}>
