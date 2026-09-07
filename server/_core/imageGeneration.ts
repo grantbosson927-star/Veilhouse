@@ -34,7 +34,6 @@ async function generateWithCloudflareAI(prompt: string): Promise<GenerateImageRe
   const result = (await ai.run(CLOUDFLARE_IMAGE_MODEL, {
     prompt: prompt.slice(0, 2048),
     steps: 4,
-    seed: Math.floor(Math.random() * 2_147_483_647),
   })) as CloudflareImageResult;
 
   if (!result.image) throw new Error("The House returned no image from the Cloudflare image chamber.");

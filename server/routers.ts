@@ -76,8 +76,8 @@ export const appRouter = router({
     lock: protectedProcedure.mutation(({ ctx }) => { revokeCuratorAccess(ctx.req, ctx.res); return { success: true } as const; }),
     settings: ownerProcedure.query(() => getCuratorEmail()),
     updateSettings: ownerProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => setCuratorEmail(input.email)),
-    specimens: publicProcedure.query(() => listCuratorSpecimens()),
-    specimenList: ownerProcedure.query(() => listCuratorSpecimens()),
+    specimens: publicProcedure.query(() => listCuratorSpecimens(false)),
+    specimenList: ownerProcedure.query(() => listCuratorSpecimens(true)),
     saveSpecimen: ownerProcedure.input(z.object({
       slug: z.string().min(1).max(255),
       title: z.string().min(1).max(255),
@@ -88,8 +88,19 @@ export const appRouter = router({
       videoUrl: mediaRef.optional(),
       imageKey: z.string().optional().or(z.literal("")),
       videoKey: z.string().optional().or(z.literal("")),
+      audioUrl: mediaRef.optional(),
+      audioKey: z.string().optional().or(z.literal("")),
       heroMedia: z.enum(["image", "video"]),
-    })).mutation(({ input }) => upsertCuratorSpecimen({ ...input, story: input.story || null, imageUrl: input.imageUrl || null, videoUrl: input.videoUrl || null, imageKey: input.imageKey || null, videoKey: input.videoKey || null })),
+      displayOrder: z.number().int().min(0).max(9999),
+      visible: z.boolean(),
+      featured: z.boolean(),
+    })).mutation(({ input }) => upsertCuratorSpecimen({ ...input, story: input.story || null, imageUrl: input.imageUrl || null, videoUrl: input.videoUrl || null, imageKey: input.imageKey || null, audioUrl: input.audioUrl || null, audioKey: input.audioKey || null, videoKey: input.videoKey || null })),
+    duplicateAudit: ownerProcedure.query(async () => {
+      const specimens = await listCuratorSpecimens(true);
+      const byImage = new Map<string, string[]>();
+      for (const specimen of specimens) if (specimen.imageUrl) byImage.set(specimen.imageUrl, [...(byImage.get(specimen.imageUrl) || []), specimen.slug]);
+      return { duplicateImages: Array.from(byImage.entries()).filter(([, slugs]) => slugs.length > 1).map(([imageUrl, slugs]) => ({ imageUrl, slugs })), missingImages: specimens.filter((specimen) => !specimen.imageUrl).map((specimen) => ({ slug: specimen.slug, title: specimen.title })) };
+    }),
     generateSpecimenImage: ownerProcedure.input(z.object({
       slug: z.string().min(1).max(255),
       title: z.string().min(1).max(255),
@@ -108,7 +119,7 @@ export const appRouter = router({
     bySlug: publicProcedure.input(z.object({ slug: z.string().min(1) })).query(async ({ input }) => { const post = await getCuratorPostBySlug(input.slug); return post?.status === "published" ? post : null; }),
     list: ownerProcedure.query(() => listCuratorPosts()),
     revisions: ownerProcedure.input(z.object({ postId: z.number().int() })).query(({ input }) => listCuratorRevisions(input.postId)),
-    uploadMedia: ownerProcedure.input(z.object({ fileName: z.string().min(1).max(160), contentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm"]), data: z.string().min(1) })).mutation(async ({ input, ctx }) => {
+    uploadMedia: ownerProcedure.input(z.object({ fileName: z.string().min(1).max(160), contentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm", "audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"]), data: z.string().min(1) })).mutation(async ({ input, ctx }) => {
       const bytes = Buffer.from(input.data, "base64");
       if (bytes.byteLength > 25 * 1024 * 1024) throw new Error("Media uploads must be 25MB or smaller.");
       return storagePut(`curator/${ctx.user.id}/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-")}`, bytes, input.contentType);
