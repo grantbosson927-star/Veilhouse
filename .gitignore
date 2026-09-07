@@ -14,6 +14,8 @@ build/
 .env.test.local
 .env.production.local
 .dev.vars
+.github-oauth.json
+.github-oauth-secrets.json
 
 # Local data and Cloudflare
 .data/

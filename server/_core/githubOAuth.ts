@@ -7,6 +7,7 @@ import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { ENV } from "./env";
 
 export const GITHUB_STATE_COOKIE = "veilhouse_github_oauth_state";
+const GITHUB_STATE_MAX_AGE_MS = 600_000;
 
 type GitHubProfile = { id: number; login: string; name?: string | null; email?: string | null };
 type GitHubEmail = { email: string; primary: boolean; verified: boolean };
@@ -71,7 +72,7 @@ export function registerGitHubOAuthRoutes(app: Express) {
     try {
       const state = crypto.randomUUID();
       const origin = `${req.protocol}://${req.get("host")}`;
-      res.cookie(GITHUB_STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "lax", maxAge: 600000, path: "/" });
+      res.cookie(GITHUB_STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "lax", maxAge: GITHUB_STATE_MAX_AGE_MS, path: "/" });
       res.redirect(302, githubLoginUrl(origin, state));
     } catch (error) {
       res.status(503).send(error instanceof Error ? error.message : "GitHub OAuth is not configured.");
@@ -108,7 +109,7 @@ export async function handleGitHubOAuth(request: Request): Promise<Response> {
     try {
       const state = crypto.randomUUID();
       const headers = new Headers({ Location: githubLoginUrl(origin, state) });
-      headers.append("Set-Cookie", serializeCookie(GITHUB_STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "lax", maxAge: 600, path: "/" }));
+      headers.append("Set-Cookie", serializeCookie(GITHUB_STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "lax", maxAge: GITHUB_STATE_MAX_AGE_MS, path: "/" }));
       return new Response(null, { status: 302, headers });
     } catch (error) {
       return new Response(error instanceof Error ? error.message : "GitHub OAuth is not configured.", { status: 503 });
