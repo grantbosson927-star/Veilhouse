@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { ArrowUpRight, Loader2, LockKeyhole } from "lucide-react";
 import { FormEvent, useState } from "react";
@@ -12,7 +11,6 @@ export default function CuratorEntry() {
     retry: false,
     enabled: Boolean(user),
   });
-  const oauthConfigured = Boolean(import.meta.env.VITE_OAUTH_PORTAL_URL);
   const unlock = trpc.curator.unlock.useMutation({
     onSuccess: (result) => {
       if (result.unlocked) navigate("/curator-admin");
@@ -64,8 +62,6 @@ export default function CuratorEntry() {
         <input id="curator-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" style={{ width: "100%", padding: "14px 0", border: 0, borderBottom: "1px solid rgba(229,223,211,.35)", outline: 0, background: "transparent", color: "#e5dfd3", font: "inherit", fontSize: 16 }} />
         <button className="button-outline" type="submit" disabled={busy} style={{ justifyContent: "center" }}>{busy ? <Loader2 className="spin" size={16} /> : null} Enter the desk <ArrowUpRight size={16} /></button>
       </form>
-      {oauthConfigured && !user && <button className="button-outline" onClick={() => startLogin()}>Sign in as curator <ArrowUpRight size={16} /></button>}
-      {oauthConfigured && user && !ownerAccess.data && <button className="button-outline" onClick={() => startLogin()}>Sign in with another account <ArrowUpRight size={16} /></button>}
       {message && <p role="status" style={{ maxWidth: 420, color: "#bd5445" }}>{message}</p>}
       {(unlock.error || signIn.error) && <p role="status" style={{ maxWidth: 420, color: "#bd5445" }}>{unlock.error?.message || signIn.error?.message}</p>}
       <a className="text-link" href="/">Return to the public house</a>

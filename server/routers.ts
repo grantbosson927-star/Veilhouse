@@ -19,6 +19,18 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    signInEmail: publicProcedure.input(z.object({ email: z.string().email() })).mutation(async ({ input, ctx }) => {
+      const email = input.email.trim().toLowerCase();
+      const curatorEmail = await getCuratorEmail();
+      const openId = `email:${email}`;
+      await upsertUser({ openId, name: email.split("@")[0], email, loginMethod: "email", role: email === curatorEmail ? "admin" : "user", lastSignedIn: new Date() });
+      const user = await getUserByOpenId(openId);
+      if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "The House could not register this resident." });
+      const sessionToken = await sdk.createSessionToken(user.openId, { name: user.name || email, expiresInMs: ONE_YEAR_MS });
+      const cookieOptions = getSessionCookieOptions(ctx.req);
+      ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      return { user };
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
