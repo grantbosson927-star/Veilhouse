@@ -156,3 +156,49 @@ export const specimenUnlocks = sqliteTable("specimen_unlocks", {
 
 export type SpecimenUnlock = typeof specimenUnlocks.$inferSelect;
 export type InsertSpecimenUnlock = typeof specimenUnlocks.$inferInsert;
+
+export const archiveDoors = sqliteTable("archive_doors", {
+  slug: text("slug").primaryKey(),
+  name: text("name").notNull(),
+  introduction: text("introduction").notNull(),
+  displayOrder: integer("displayOrder").default(0).notNull(),
+  visible: integer("visible", { mode: "boolean" }).default(true).notNull(),
+  imageUrl: text("imageUrl"),
+  imageKey: text("imageKey"),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+});
+
+export type ArchiveDoor = typeof archiveDoors.$inferSelect;
+export type InsertArchiveDoor = typeof archiveDoors.$inferInsert;
+
+export const fieldNotes = sqliteTable("field_notes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  kind: text("kind").notNull(),
+  slug: text("slug").notNull().unique(),
+  excerpt: text("excerpt").notNull(),
+  body: text("body").notNull(),
+  imageUrl: text("imageUrl"),
+  imageKey: text("imageKey"),
+  status: text("status", { enum: ["draft", "published"] }).default("draft").notNull(),
+  displayOrder: integer("displayOrder").default(0).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+});
+
+export type FieldNote = typeof fieldNotes.$inferSelect;
+export type InsertFieldNote = typeof fieldNotes.$inferInsert;
+
+export const manifestoSections = sqliteTable("manifesto_sections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  number: text("number").notNull(),
+  heading: text("heading").notNull(),
+  body: text("body").notNull(),
+  imageUrl: text("imageUrl"),
+  imageKey: text("imageKey"),
+  displayOrder: integer("displayOrder").default(0).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+});
+
+export type ManifestoSection = typeof manifestoSections.$inferSelect;
+export type InsertManifestoSection = typeof manifestoSections.$inferInsert;

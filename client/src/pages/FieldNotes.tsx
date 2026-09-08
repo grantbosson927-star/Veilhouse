@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { PageShell, images } from "./ContentPageShell";
+import { trpc } from "@/lib/trpc";
 
 const notes = [
   ["Curator's Journal", "FIELD NOTE 017: Ward 07", "Nurse J. Morrison reported on 03/14/2024: ‘The corridor measured 47 meters on Monday. Today it measures 63 meters. We have not added space. The walls are breathing. Patients are reporting that their rooms move when they are not looking.’ Curator's annotation: The house confirms. Ward 07 has no outside.", 2],
@@ -10,5 +11,7 @@ const notes = [
 ];
 
 export default function FieldNotes() {
-  return <PageShell eyebrow="03 / Recovered documents" title={<>Field notes from<br /><em>the other side.</em></>} intro="Micro-fictions, testimonies, technical drawings, clinical reports, and cryptic annotations recovered from the walls of the house."><div className="notes-library">{notes.map(([type, title, text, image]) => <article className="note-card" key={title}><img className="hover-enlarge" src={images[image as number]} alt="" /><div><span>{type}</span><h2>{title}</h2><p>{text}</p><a href={`/field-notes/${String(title).toLowerCase().replaceAll(" ", "-")}`}>Open document <ArrowUpRight size={14} /></a></div></article>)}</div></PageShell>;
+  const saved = trpc.editorial.fieldNotes.useQuery();
+  const records = saved.data?.length ? saved.data.map((note, index) => ({ type: note.kind, title: note.title, text: note.excerpt, image: index % images.length, slug: note.slug })) : notes.map(([type, title, text, image]) => ({ type, title, text, image: image as number, slug: String(title).toLowerCase().replaceAll(" ", "-") }));
+  return <PageShell eyebrow="03 / Recovered documents" title={<>Field notes from<br /><em>the other side.</em></>} intro="Micro-fictions, testimonies, technical drawings, clinical reports, and cryptic annotations recovered from the walls of the house."><div className="notes-library">{records.map((note) => <article className="note-card" key={note.title}><img className="hover-enlarge" src={images[note.image]} alt="" /><div><span>{note.type}</span><h2>{note.title}</h2><p>{note.text}</p><a href={`/field-notes/${note.slug}`}>Open document <ArrowUpRight size={14} /></a></div></article>)}</div></PageShell>;
 }

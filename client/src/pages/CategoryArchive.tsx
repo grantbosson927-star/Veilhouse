@@ -45,11 +45,13 @@ export default function CategoryArchive() {
   const category = categories[index] || categories[0];
   const records = category[0] === "religious-horror" ? religious : archiveMetadata[category[0]] || [];
   const overridesQuery = trpc.curator.specimens.useQuery();
+  const doorsQuery = trpc.editorial.doors.useQuery();
   const specimens: Specimen[] = records.map((record, specimenIndex) => ({ ...record, image: category[0] === "religious-horror" ? religiousHorrorImages[specimenIndex] : archiveImages[category[0]]?.[specimenIndex] })).map((specimen) => { const override = overridesQuery.data?.find((item) => item.slug === specimen.title.toLowerCase().replaceAll(" ", "-")); return { ...specimen, image: override?.imageUrl || specimen.image, description: override?.excerpt || specimen.description, displayOrder: override?.displayOrder || 0, visible: override?.visible ?? true }; }).filter((specimen) => specimen.visible).sort((left, right) => (left.displayOrder || 0) - (right.displayOrder || 0));
   const [, navigate] = useLocation();
 
-  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}>
-    <div className="category-intro"><p>{introductions[category[0]] || "A sealed room in the living archive."}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div>
+  const savedDoor = doorsQuery.data?.find((door) => door.slug === category[0]);
+  return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{savedDoor?.name || category[1]}<br /><em>has a pulse.</em></>} intro={savedDoor?.introduction || category[2]}>
+    <div className="category-intro"><p>{savedDoor?.introduction || introductions[category[0]] || "A sealed room in the living archive."}</p><span>INTRODUCTION / {(savedDoor?.name || category[1]).toUpperCase()}</span></div>
     <div className="specimen-grid">{specimens.map((specimen) => <article className="specimen-card hover-enlarge" key={specimen.id}>
       <img src={specimen.image} alt={specimen.title} onClick={(event) => openVeilhouseLightbox(event, specimen.image || "", specimen.title)} />
       <div><span>{specimen.id} / {category[1]}</span><h2>{specimen.title}</h2><p>{specimen.description}</p>

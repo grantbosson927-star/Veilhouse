@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { ownerProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { grantCuratorAccess, revokeCuratorAccess, hasCuratorAccess } from "./curatorAccess";
-import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, createGeneratedDream, createSpecimenUnlock, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, getUserByOpenId, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listGeneratedDreams, listOfferingLedger, listPublishedCuratorPosts, listSpecimenUnlocks, listSubscribers, listUsers, restoreOfferings, setCuratorEmail, spendOfferings, updateCuratorPost, upsertCuratorSpecimen, upsertUser } from "./db";
+import { addSubscriber, createCuratorPost, createCuratorRevision, createCuratorSubmission, createDreamSubmission, createGeneratedDream, createSpecimenUnlock, deleteCuratorPost, getCuratorEmail, getCuratorPostById, getCuratorPostBySlug, getUserByOpenId, listArchiveDoors, listCuratorPosts, listCuratorRevisions, listCuratorSpecimens, listCuratorSubmissions, listDreamSubmissions, listFieldNotes, listGeneratedDreams, listManifestoSections, listOfferingLedger, listPublishedCuratorPosts, listSpecimenUnlocks, listSubscribers, listUsers, restoreOfferings, setCuratorEmail, spendOfferings, updateCuratorPost, upsertArchiveDoor, upsertCuratorSpecimen, upsertFieldNote, upsertManifestoSection, upsertUser } from "./db";
 import { storagePut } from "./storage";
 import { notifyOwner } from "./_core/notification";
 import { sdk } from "./_core/sdk";
@@ -168,6 +168,17 @@ export const appRouter = router({
       return deleteCuratorPost(input.id);
     }),
     dreams: ownerProcedure.query(() => listDreamSubmissions()),
+    doors: ownerProcedure.query(() => listArchiveDoors(true)),
+    saveDoor: ownerProcedure.input(z.object({ slug: z.string().min(1).max(80), name: z.string().min(1).max(120), introduction: z.string().min(1), displayOrder: z.number().int(), visible: z.boolean(), imageUrl: mediaRef.optional(), imageKey: z.string().optional().or(z.literal("")) })).mutation(({ input }) => upsertArchiveDoor({ ...input, imageUrl: input.imageUrl || null, imageKey: input.imageKey || null })),
+    fieldNotes: ownerProcedure.query(() => listFieldNotes(true)),
+    saveFieldNote: ownerProcedure.input(z.object({ id: z.number().int().optional(), title: z.string().min(1).max(255), kind: z.string().min(1).max(80), slug: z.string().min(1).max(120), excerpt: z.string().min(1), body: z.string().min(1), imageUrl: mediaRef.optional(), imageKey: z.string().optional().or(z.literal("")), status: z.enum(["draft", "published"]), displayOrder: z.number().int() })).mutation(({ input }) => upsertFieldNote({ ...input, imageUrl: input.imageUrl || null, imageKey: input.imageKey || null })),
+    manifesto: ownerProcedure.query(() => listManifestoSections()),
+    saveManifesto: ownerProcedure.input(z.object({ id: z.number().int().optional(), number: z.string().min(1).max(12), heading: z.string().min(1).max(255), body: z.string().min(1), imageUrl: mediaRef.optional(), imageKey: z.string().optional().or(z.literal("")), displayOrder: z.number().int() })).mutation(({ input }) => upsertManifestoSection({ ...input, imageUrl: input.imageUrl || null, imageKey: input.imageKey || null })),
+  }),
+  editorial: router({
+    doors: publicProcedure.query(() => listArchiveDoors(false)),
+    fieldNotes: publicProcedure.query(() => listFieldNotes(false)),
+    manifesto: publicProcedure.query(() => listManifestoSections()),
   }),
   dispatch: router({
     subscribe: publicProcedure.input(z.object({ email: z.string().email() })).mutation(({ input }) => addSubscriber(input.email)),

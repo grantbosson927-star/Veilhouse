@@ -12,6 +12,12 @@ import {
   InsertGeneratedDream,
   InsertSpecimenUnlock,
   InsertUser,
+  InsertArchiveDoor,
+  InsertFieldNote,
+  InsertManifestoSection,
+  archiveDoors,
+  fieldNotes,
+  manifestoSections,
   curatorPostRevisions,
   curatorPosts,
   curatorSettings,
@@ -325,4 +331,51 @@ export async function listDreamSubmissions() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(dreamSubmissions).orderBy(desc(dreamSubmissions.createdAt)).limit(12);
+}
+
+export async function listArchiveDoors(includeHidden = false) {
+  const db = await getDb();
+  if (!db) return [];
+  const query = db.select().from(archiveDoors);
+  return (includeHidden ? query : query.where(eq(archiveDoors.visible, true))).orderBy(archiveDoors.displayOrder, archiveDoors.name);
+}
+export async function upsertArchiveDoor(door: InsertArchiveDoor) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(archiveDoors).values(door).onConflictDoUpdate({ target: archiveDoors.slug, set: { name: door.name, introduction: door.introduction, displayOrder: door.displayOrder ?? 0, visible: door.visible ?? true, imageUrl: door.imageUrl ?? null, imageKey: door.imageKey ?? null, updatedAt: new Date() } });
+  const rows = await db.select().from(archiveDoors).where(eq(archiveDoors.slug, door.slug)).limit(1);
+  return rows[0];
+}
+export async function listFieldNotes(includeDrafts = false) {
+  const db = await getDb();
+  if (!db) return [];
+  const query = db.select().from(fieldNotes);
+  return (includeDrafts ? query : query.where(eq(fieldNotes.status, "published"))).orderBy(fieldNotes.displayOrder, fieldNotes.createdAt);
+}
+export async function upsertFieldNote(note: InsertFieldNote) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  if (note.id) {
+    await db.update(fieldNotes).set({ ...note, updatedAt: new Date() }).where(eq(fieldNotes.id, note.id));
+    const rows = await db.select().from(fieldNotes).where(eq(fieldNotes.id, note.id)).limit(1);
+    return rows[0];
+  }
+  const rows = await db.insert(fieldNotes).values(note).returning();
+  return rows[0];
+}
+export async function listManifestoSections() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(manifestoSections).orderBy(manifestoSections.displayOrder, manifestoSections.id);
+}
+export async function upsertManifestoSection(section: InsertManifestoSection) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  if (section.id) {
+    await db.update(manifestoSections).set({ ...section, updatedAt: new Date() }).where(eq(manifestoSections.id, section.id));
+    const rows = await db.select().from(manifestoSections).where(eq(manifestoSections.id, section.id)).limit(1);
+    return rows[0];
+  }
+  const rows = await db.insert(manifestoSections).values(section).returning();
+  return rows[0];
 }

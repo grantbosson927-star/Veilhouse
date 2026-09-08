@@ -1,0 +1,34 @@
+CREATE TABLE IF NOT EXISTS archive_doors (
+  slug VARCHAR(120) PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  introduction TEXT NOT NULL,
+  displayOrder INTEGER NOT NULL DEFAULT 0,
+  visible INTEGER NOT NULL DEFAULT 1,
+  imageUrl TEXT,
+  imageKey TEXT,
+  updatedAt INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS field_notes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  slug VARCHAR(160) NOT NULL UNIQUE,
+  excerpt TEXT NOT NULL,
+  body TEXT NOT NULL,
+  imageUrl TEXT,
+  imageKey TEXT,
+  status TEXT NOT NULL DEFAULT 'draft',
+  displayOrder INTEGER NOT NULL DEFAULT 0,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS manifesto_sections (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  number TEXT NOT NULL,
+  heading TEXT NOT NULL,
+  body TEXT NOT NULL,
+  imageUrl TEXT,
+  imageKey TEXT,
+  displayOrder INTEGER NOT NULL DEFAULT 0,
+  updatedAt INTEGER NOT NULL
+);
