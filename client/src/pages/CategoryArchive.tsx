@@ -6,6 +6,7 @@ import { religiousHorrorRecords } from "./religiousHorror";
 import { archiveImages } from "./archiveImages";
 import { archiveMetadata, type ArchiveMetadata } from "./archiveMetadata";
 import { trpc } from "@/lib/trpc";
+import { openVeilhouseLightbox } from "@/components/VeilhouseLightbox";
 
 const religiousHorrorImages = [
   "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-001.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-002.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-003.jpg", "/archive-assets/generated/veilhouse/religious-horror-rerender/RH-004.jpg",
@@ -50,7 +51,7 @@ export default function CategoryArchive() {
   return <PageShell eyebrow={`01 / Door 0${index + 1}`} title={<>{category[1]}<br /><em>has a pulse.</em></>} intro={category[2]}>
     <div className="category-intro"><p>{introductions[category[0]] || "A sealed room in the living archive."}</p><span>INTRODUCTION / {category[1].toUpperCase()}</span></div>
     <div className="specimen-grid">{specimens.map((specimen) => <article className="specimen-card hover-enlarge" key={specimen.id}>
-      <img src={specimen.image} alt={specimen.title} />
+      <img src={specimen.image} alt={specimen.title} onClick={(event) => openVeilhouseLightbox(event, specimen.image || "", specimen.title)} />
       <div><span>{specimen.id} / {category[1]}</span><h2>{specimen.title}</h2><p>{specimen.description}</p>
         <details className="specimen-record"><summary>Open archive record</summary><dl><div><dt>MEDIUM</dt><dd>{specimen.medium}</dd></div><div><dt>LOCATION</dt><dd>{specimen.location}</dd></div><div><dt>ACCESSION DATE</dt><dd>{specimen.accessionDate}</dd></div></dl><p><strong>CURATOR'S NOTE</strong><br />{specimen.curatorNote}</p><p><strong>AI IMAGE PROMPT</strong><br />{specimen.prompt}</p></details>
         <a href={`/specimen/${specimen.title.toLowerCase().replaceAll(" ", "-")}`}>Read label <ArrowUpRight size={14} /></a>
