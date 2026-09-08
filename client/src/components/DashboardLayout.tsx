@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { Archive, AudioLines, BookOpen, FileText, GalleryHorizontalEnd, Goal, Inbox, LayoutDashboard, ListChecks, LogOut, PanelLeft, Radio, Settings2, Users, Waypoints } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -30,7 +30,21 @@ import { Button } from "./ui/button";
 const menuItems = [
   { icon: LayoutDashboard, label: "Public house", path: "/" },
   { icon: Users, label: "Curator desk", path: "/curator-admin" },
+  { icon: Archive, label: "Archive control", path: "/curator-admin/archive-control" },
+  { icon: FileText, label: "Specimen editor", path: "/curator-admin/specimen-editor" },
+  { icon: AudioLines, label: "Media chamber", path: "/curator-admin/media-chamber" },
+  { icon: GalleryHorizontalEnd, label: "Hero carousel", path: "/curator-admin/hero-carousel" },
+  { icon: Inbox, label: "Submission inbox", path: "/curator-admin/submission-inbox" },
+  { icon: Radio, label: "Dream records", path: "/curator-admin/dream-records" },
+  { icon: Users, label: "Resident registry", path: "/curator-admin/resident-registry" },
+  { icon: Waypoints, label: "Archive doors", path: "/curator-admin/archive-doors" },
+  { icon: FileText, label: "Dispatches editor", path: "/curator-admin/dispatches-editor" },
+  { icon: BookOpen, label: "Field Notes library", path: "/curator-admin/field-notes-library" },
+  { icon: Goal, label: "Manifesto editor", path: "/curator-admin/manifesto-editor" },
+  { icon: Settings2, label: "Site configuration", path: "/curator-admin/site-configuration" },
+  { icon: ListChecks, label: "Archive audit", path: "/curator-admin/archive-audit" },
 ];
+
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
