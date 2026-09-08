@@ -18,6 +18,7 @@ import FieldNotes from "./pages/FieldNotes";
 import DocumentDetail from "./pages/DocumentDetail";
 import SignIn from "./pages/SignIn";
 import CuratorSection from "./pages/CuratorSection";
+import VeilhouseLightbox from "./components/VeilhouseLightbox";
 import "./content-pages.css";
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -25,7 +26,7 @@ function Router() {
 }
 
 function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="dark"><TooltipProvider><Toaster /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="dark"><TooltipProvider><Toaster /><VeilhouseLightbox /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
 }
 
 export default App;

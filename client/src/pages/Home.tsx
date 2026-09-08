@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Menu, Search, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { openVeilhouseLightbox } from "@/components/VeilhouseLightbox";
 import { religiousHorrorRecords } from "./religiousHorror";
 import { archiveImages } from "./archiveImages";
 import { archiveMetadata } from "./archiveMetadata";
@@ -18,7 +19,7 @@ const images = {
   weirdcore: "/archive-assets/generated/veilhouse/weirdcore_2a609490.jpg",
   gargoyle: "/archive-assets/generated/veilhouse/gargoyle_734fe71c.jpg",
   ritual: "/archive-assets/generated/veilhouse/ritual_77455d59.jpg",
-  mark: "/archive-assets/generated/veilhouse/veilhouse-mark_d304fc45.png",
+  mark: "/archive-assets/generated/veilhouse/offering-sigil.svg",
 };
 
 type CuratedEntry = { slug: string; title: string; category: string; number: string; image: string; note: string; visible?: boolean; featured?: boolean; displayOrder?: number };
@@ -136,14 +137,14 @@ export default function Home() {
             <a className="round-cta" href={`/specimen/${hero.slug}`} aria-label={`Open ${hero.title}`}><ArrowUpRight size={23} /></a>
           </div>
           <div className="hero-index">VH / {hero.number} <span>{hero.heroMedia === "video" ? "video evidence" : "archival image"}</span></div>
-          <div className="hero-carousel" aria-label="Specimen hero carousel">{heroSlides.map((slide, index) => <button type="button" key={slide.slug} aria-label={`Show ${slide.title}`} className={index === heroIndex ? "active" : ""} onClick={() => setHeroIndex(index)}><span>{slide.number}</span></button>)}</div>
+          <div className="hero-carousel" aria-label="Specimen hero carousel">{heroSlides.map((slide, index) => <button type="button" key={slide.slug} aria-label={`Show ${slide.title}`} className={index === heroIndex ? "active" : ""} onClick={() => setHeroIndex(index)}><img src={slide.heroImage} alt="" /><span>{slide.number}</span></button>)}</div>
         </section>
 
 
         <section className="archive" id="archive">
           <div className="archive-heading section-grid"><div className="section-kicker"><span>000</span><span>Curated specimens</span></div><div><p className="eyebrow oxblood">Recent disturbances</p><h2>Enter the<br /><em>archive.</em></h2></div><p className="archive-intro">Seven doors. No map. Each collection is a different way of losing the thread.</p><div className="archive-mark"><img src={images.mark} alt="" /><span>CATALOGUE<br />VH / 03</span></div></div>
           <div className="filters-wrap"><span className="accession-label">ACCESSION / 03</span><div className="filters" role="tablist" aria-label="Archive filters">{themes.map((theme) => <button key={theme} className={activeTheme === theme ? "filter active" : "filter"} onClick={() => setActiveTheme(theme)}>{theme}</button>)}</div><label className="search-box"><Search size={16} /><input aria-label="Search archive" placeholder="Search the archive" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
-          <><div className="archive-grid">{filteredEntries.map((entry) => <a className="archive-card" href={`/specimen/${entry.slug}`} key={entry.number}><div className="card-image"><img src={entry.image} alt={entry.title} /><span className="card-number">{entry.number}</span><span className="card-arrow"><ArrowUpRight size={18} /></span></div><div className="card-body"><p>{entry.category}</p><h3>{entry.title}</h3><span>{entry.note}</span></div></a>)}</div>{filteredEntries.length === 0 && <div className="empty-state">No specimen matches this disturbance.</div>}{!user && <div className="archive-gate"><p className="eyebrow oxblood">RESIDENT ACCESS</p><h3>The archive shows its face.</h3><p>Witness these selected specimens freely. Leave your email to read what the House keeps beneath the image and carry your first 1,000 Offerings into the archive.</p><button className="button-outline" type="button" onClick={startLogin}>Read the hidden archive <ArrowUpRight size={16} /></button></div>}</>
+          <><div className="archive-grid">{filteredEntries.map((entry) => <a className="archive-card" href={`/specimen/${entry.slug}`} key={entry.number}><div className="card-image"><img src={entry.image} alt={entry.title} onClick={(event) => openVeilhouseLightbox(event, entry.image, entry.title)} /><span className="card-number">{entry.number}</span><span className="card-arrow"><ArrowUpRight size={18} /></span></div><div className="card-body"><p>{entry.category}</p><h3>{entry.title}</h3><span>{entry.note}</span></div></a>)}</div>{filteredEntries.length === 0 && <div className="empty-state">No specimen matches this disturbance.</div>}{!user && <div className="archive-gate"><p className="eyebrow oxblood">RESIDENT ACCESS</p><h3>The archive shows its face.</h3><p>Witness these selected specimens freely. Leave your email to read what the House keeps beneath the image and carry your first 1,000 Offerings into the archive.</p><button className="button-outline" type="button" onClick={startLogin}>Read the hidden archive <ArrowUpRight size={16} /></button></div>}</>
         </section>
 
         <section className="field-notes" id="field-notes">

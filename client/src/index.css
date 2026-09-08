@@ -98,3 +98,21 @@ h1 em, h2 em { font-style: italic; font-weight: 300; color: #c65b4b; }
 .media-lock{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:13px;padding:26px;background:#181714;color:#c9c0b5}.media-lock span{color:#bd5445;font-size:9px;letter-spacing:.15em;text-transform:uppercase}.media-lock strong{font:28px/.95 "Cormorant Garamond",serif;max-width:300px;font-weight:400}
 
 .archive-gate{margin-top:28px;min-height:260px;padding:42px 11%;border:1px solid rgba(229,223,211,.18);background:linear-gradient(135deg,rgba(165,61,47,.12),rgba(24,23,20,.7));display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.archive-gate h3{margin:0 0 10px;font:400 clamp(34px,4vw,58px)/.9 "Cormorant Garamond",serif}.archive-gate p:not(.eyebrow){max-width:420px;color:#91897d;line-height:1.6;font-size:13px}.archive-gate .button-outline{margin-top:10px}
+
+/* Veilhouse interaction layer: images invite a closer witness; the pointer carries the House mark. */
+body, button, a, input, textarea, select { cursor: url('/archive-assets/generated/veilhouse/veilhouse-cursor.svg') 5 3, auto; }
+.card-image img, .specimen-card img, .detail-media-card img, .public-ledger-card img { cursor: url('/archive-assets/generated/veilhouse/veilhouse-cursor.svg') 5 3, zoom-in; }
+.card-image img, .specimen-card img, .detail-media-card img, .public-ledger-card img { transition: transform 420ms cubic-bezier(.23,1,.32,1), filter 280ms ease, opacity 180ms ease; }
+.card-image:hover img, .specimen-card:hover img, .detail-media-card:hover img, .public-ledger-card:hover img { transform: scale(1.06); filter: saturate(1.12) contrast(1.04); }
+.veilhouse-lightbox { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 7vh 7vw; background: rgba(5,5,4,.86); backdrop-filter: blur(8px); animation: veilhouse-fade 180ms ease-out; }
+.veilhouse-lightbox figure { position: relative; max-width: min(860px, 90vw); max-height: 86vh; margin: 0; padding: 10px; border: 1px solid rgba(189,84,69,.65); background: #11100e; box-shadow: 0 22px 90px rgba(0,0,0,.7); animation: veilhouse-rise 220ms cubic-bezier(.23,1,.32,1); }
+.veilhouse-lightbox img { display: block; max-width: min(840px, 87vw); max-height: 76vh; width: auto; height: auto; object-fit: contain; }
+.veilhouse-lightbox button { position: absolute; z-index: 1; top: 18px; right: 18px; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid rgba(245,238,228,.65); border-radius: 50%; color: #f5eee4; background: rgba(17,16,14,.72); }
+.veilhouse-lightbox figcaption { display: flex; justify-content: space-between; gap: 20px; padding: 12px 4px 2px; color: #e5dfd3; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.veilhouse-lightbox figcaption span { color: #bd5445; font-size: 9px; }
+.offering-sigil { width: 20px; height: 20px; object-fit: contain; flex: 0 0 auto; filter: drop-shadow(0 0 5px rgba(189,84,69,.3)); }
+.account-sacrament { display: inline-flex; align-items: center; gap: 7px; }
+@keyframes veilhouse-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes veilhouse-rise { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .veilhouse-lightbox, .veilhouse-lightbox figure { animation: none; } }
+.hero-carousel button { height: 42px; width: 48px; padding: 3px; display: flex; flex-direction: column; align-items: center; gap: 2px; }.hero-carousel button img { width: 42px; height: 28px; object-fit: cover; opacity: .58; filter: saturate(.65); }.hero-carousel button.active img, .hero-carousel button:hover img { opacity: 1; filter: saturate(1); }

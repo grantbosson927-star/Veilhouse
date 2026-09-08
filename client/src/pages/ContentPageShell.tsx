@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import AccountRitual from "@/components/AccountRitual";
 
-const mark = "/archive-assets/generated/veilhouse/veilhouse-mark_d304fc45.png";
+const mark = "/archive-assets/generated/veilhouse/offering-sigil.svg";
 const images = [
   "/archive-assets/generated/veilhouse/faith_62552905.jpg",
   "/archive-assets/generated/veilhouse/machine_7126fb05.jpg",

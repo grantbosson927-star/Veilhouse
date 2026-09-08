@@ -24,7 +24,7 @@ export default function AccountRitual({ compact = false }: { compact?: boolean }
   return <>
     <div className="account-ritual">
       <button className={compact ? "account-sacrament compact" : "account-sacrament"} type="button" onClick={() => setOfferingOpen(true)} aria-label={`Sacrament: ${offerings} Offerings`}>
-        <span>Sacrament</span><strong>{account.isLoading ? "…" : offerings.toLocaleString()}</strong>
+        <img className="offering-sigil" src="/archive-assets/generated/veilhouse/offering-sigil.svg" alt="" /><span>Sacrament</span><strong>{account.isLoading ? "…" : offerings.toLocaleString()}</strong>
       </button>
       <span className="account-name">{user.name || user.email || "Resident"}</span>
       <button className="account-logout" type="button" onClick={() => void logout()} aria-label="Leave the house"><LogOut size={14} /></button>
